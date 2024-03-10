@@ -1,7 +1,10 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/pages/components/my_button.dart';
 import 'package:flutter_application_1/pages/components/my_texfield.dart';
+import 'package:http/http.dart' as http;
 import 'register_page.dart';
+import 'home_page.dart';
 
 class LoginPage extends StatelessWidget {
   LoginPage({Key? key}) : super(key: key);
@@ -11,7 +14,61 @@ class LoginPage extends StatelessWidget {
   final passwordController = TextEditingController();
 
   // sign user in method
-  void signUserIn() {}
+  Future<void> signInUser(BuildContext context) async {
+  final Uri uri = Uri.parse('http://192.168.1.69:3000/api/patient/login'); 
+  final Map<String, dynamic> userData = {
+    'email': emailController.text,
+    'password': passwordController.text,
+  };
+
+  // Append query parameters to the URI
+  final Uri uriWithParams = uri.replace(queryParameters: userData);
+
+  print('URI with parameters: $uriWithParams'); 
+
+  try {
+    final http.Response response = await http.get(
+      uriWithParams,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    print('Response status code: ${response.statusCode}'); // Add this line to see the status code of the response
+    print('Response body: ${response.body}'); // Add this line to see the body of the response
+
+     if (response.statusCode == 200) {
+      // Sign-in successful, navigate to the next page
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => HomePage(),
+        ),
+      );
+    } else {
+      // Sign-in failed, display error message
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Error'),
+            content: const Text('Failed to sign in user.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  } catch (e) {
+    print('Error: $e'); // Add this line to see any error that occurs during the request
+  }
+}
+
 
    // navigate to register page method
   void navigateToRegisterPage(BuildContext context) {
@@ -141,7 +198,7 @@ class LoginPage extends StatelessWidget {
                 // sign in button
                 MyButton(
                   text: "Log in",
-                  onTap: signUserIn,
+                  onTap: () => signInUser(context),
                 ),
             
                 const SizedBox(height: 15),

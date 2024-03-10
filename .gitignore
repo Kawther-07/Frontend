@@ -58,6 +58,7 @@ analysis_benchmark.json
 .pub-preload-cache/
 .pub-cache/
 .pub/
+.metadata
 build/
 flutter_*.png
 linked_*.ds
