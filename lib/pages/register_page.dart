@@ -1,34 +1,79 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/pages/components/my_button.dart';
-import 'package:flutter_application_1/pages/components/my_texfield.dart';
-import 'next_page1.dart';
+import 'package:flutter_application_1/pages/components/my_texfield.dart'; 
+import 'package:flutter_application_1/pages/home_page.dart';
+import 'package:http/http.dart' as http;
 import 'login_page.dart';
+import 'next_page2.dart'; 
+import 'home_page.dart';
 
 class RegisterPage extends StatelessWidget {
-  RegisterPage({Key? key}) : super(key: key);
+  RegisterPage({Key? key});
 
   // text editing controllers
-  final fnameController = TextEditingController();
-  final lnameController = TextEditingController();
-  final userTypeController = TextEditingController();
+  final TextEditingController fnameController = TextEditingController();
+  final TextEditingController lnameController = TextEditingController();
+  final TextEditingController roleController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
-  // sidn user in method
-  void signUserIn(BuildContext context) {
-  // You can perform any necessary sign-in logic here
-  
-  // Navigate to the next page (replace `NextPage1` with the name of your next page class)
-  Navigator.of(context).push(
-    MaterialPageRoute(
-      builder: (context) => NextPage1(), // Replace `NextPage1` with your page class name
-    ),
-  );
-}
+  Future<void> registerUser(BuildContext context) async {
+    final Uri uri = Uri.parse('http://192.168.1.69:3000/api/patient'); 
+    final Map<String, dynamic> userData = {
+      'first_name': fnameController.text,
+      'last_name': lnameController.text,
+      'phone': phoneController.text,
+      'email': emailController.text,
+      'password': passwordController.text,
+    };
 
-// navigate to sign-in page method
+    try {
+      final http.Response response = await http.post(
+        uri,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(userData),
+      );
+
+      if (response.statusCode == 200) {
+        // Registration successful, navigate to the next page
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => HomePage(), // Navigate to NextPage2 after registration
+          ),
+        );
+      } else {
+        // Registration failed, display error message
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Error'),
+              content: const Text('Failed to register user.'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  // navigate to sign-in page method
   void navigateToSignInPage(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => LoginPage(), // Replace `SignInPage` with your sign-in page class name
+        builder: (context) => LoginPage(),
       ),
     );
   }
@@ -42,8 +87,8 @@ class RegisterPage extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 10),
-            
+                const SizedBox(height: 0),
+                
                 // logo
                 Center(
                   child: Column(
@@ -52,14 +97,14 @@ class RegisterPage extends StatelessWidget {
                         alignment: Alignment.center,
                         children: [
                           Container(
-                            width: 100,
-                            height: 100,
+                            width: 50,
+                            height: 50,
                             decoration: const BoxDecoration(
                               shape: BoxShape.circle,
                               gradient: LinearGradient(
                                 colors: [
-                                  Color(0xFF8D91FD), // First color
-                                  Color(0xFF595DE5), // Second color
+                                  Color(0xFF8D91FD),
+                                  Color(0xFF595DE5),
                                 ],
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
@@ -68,12 +113,14 @@ class RegisterPage extends StatelessWidget {
                           ),
                           const Icon(
                             Icons.circle,
-                            size: 100,
+                            size: 50,
                             color: Colors.transparent,
                           ),
                         ],
                       ),
-                      const SizedBox(height: 10), 
+
+                      const SizedBox(height: 0), 
+
                       const Text(
                         'AppName',
                         style: TextStyle(
@@ -85,83 +132,80 @@ class RegisterPage extends StatelessWidget {
                     ],
                   ),
                 ),
-            
+
                 const SizedBox(height: 40),
-            
-                // please enter your information to get started.
-                Center(
-                  child: RichText(
-                    textAlign: TextAlign.center,
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'Please enter your information\n',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            color: Colors.grey.shade900,
-                          ),
-                        ),
-                        TextSpan(
-                          text: 'to get started.',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            color: Colors.grey.shade900,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-            
-                const SizedBox(height: 20),
-            
-                // first name field
+
                 MyTextField(
                   controller: fnameController,
                   hintText: 'First name',
                   obscureText: false,
                 ),
-            
-                const SizedBox(height: 10),
-            
-                // last name field
+
+                const SizedBox(height: 15),
+
                 MyTextField(
                   controller: lnameController,
                   hintText: 'Last name',
                   obscureText: false,
                 ),
-            
-                const SizedBox(height: 10),
 
-                // user type field
+                const SizedBox(height: 15),
+
                 MyTextField(
-                  controller: userTypeController,
-                  hintText: 'User type',
-                  obscureText: false,
-                ),
-
-                const SizedBox(height: 10), 
-
-                // phone numberuser type field
-                MyTextField(
-                  controller: userTypeController,
+                  controller: phoneController,
                   hintText: 'Phone number',
                   obscureText: false,
                 ),
-            
-                const SizedBox(height: 50),
-            
-                // sign up button
-                MyButton(
-                  text: "Next",
-                  onTap: () => signUserIn(context),
-                ),
-            
+
                 const SizedBox(height: 15),
-            
-                // Already have an account? Sign in.
+
+                MyTextField(
+                  controller: emailController,
+                  hintText: 'Email',
+                  obscureText: false,
+                ),
+
+                const SizedBox(height: 15),
+
+                MyTextField(
+                  controller: passwordController,
+                  hintText: 'Password',
+                  obscureText: true,
+                ),
+
+                const SizedBox(height: 50),
+
+                GestureDetector(
+                  onTap: () => registerUser(context),
+                  child: Container(
+                    padding: const EdgeInsets.all(15),
+                    margin: const EdgeInsets.symmetric(horizontal: 25),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [
+                          Color(0xFF8D91FD),
+                          Color(0xFF595DE5),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        "Sign up",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 15),
+
                 GestureDetector(
                   onTap: () => navigateToSignInPage(context),
                   child: Row(
@@ -171,7 +215,9 @@ class RegisterPage extends StatelessWidget {
                         'Already have an account?',
                         style: TextStyle(color: Colors.grey[700]),
                       ),
+
                       const SizedBox(width: 4),
+                      
                       const Text(
                         'Sign in.',
                         style: TextStyle(
@@ -182,7 +228,6 @@ class RegisterPage extends StatelessWidget {
                     ],
                   ),
                 ),
-
               ],
             ),
           ),

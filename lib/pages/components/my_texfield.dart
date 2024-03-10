@@ -34,7 +34,7 @@ class MyTextField extends StatelessWidget {
           hintText: hintText,
           hintStyle: TextStyle(color: Colors.grey.shade500),
           prefixIcon: icon != null ? Icon(icon, color: Colors.grey.shade500) : null,
-          // contentPadding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+          contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
         ),
       ),
     );
