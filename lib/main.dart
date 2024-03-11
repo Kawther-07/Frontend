@@ -3,6 +3,11 @@ import 'package:flutter_application_1/pages/profile_page.dart';
 import 'pages/login_page.dart';
 import 'pages/register_page.dart';
 import 'pages/dashboard.dart';
+import 'package:flutter_application_1/pages/dashboard.dart';
+import 'pages/login_page.dart';
+import 'pages/register_page.dart';
+import 'pages/login_page.dart';
+import 'pages/register_page.dart';
 
 void main() {
   runApp(const MyApp());
