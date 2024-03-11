@@ -4,7 +4,7 @@ import 'package:flutter_application_1/pages/components/my_button.dart';
 import 'package:flutter_application_1/pages/components/my_texfield.dart';
 import 'package:http/http.dart' as http;
 import 'register_page.dart';
-import 'home_page.dart';
+import 'dashboard.dart';
 
 class LoginPage extends StatelessWidget {
   LoginPage({Key? key}) : super(key: key);
@@ -21,27 +21,20 @@ class LoginPage extends StatelessWidget {
     'password': passwordController.text,
   };
 
-  // Append query parameters to the URI
-  final Uri uriWithParams = uri.replace(queryParameters: userData);
-
-  print('URI with parameters: $uriWithParams'); 
-
   try {
-    final http.Response response = await http.get(
-      uriWithParams,
+    final http.Response response = await http.post(
+      uri,
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
+      body: jsonEncode(userData),
     );
 
-    print('Response status code: ${response.statusCode}'); // Add this line to see the status code of the response
-    print('Response body: ${response.body}'); // Add this line to see the body of the response
-
-     if (response.statusCode == 200) {
+    if (response.statusCode == 200) {
       // Sign-in successful, navigate to the next page
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => HomePage(),
+          builder: (context) => DashboardPage(),
         ),
       );
     } else {
@@ -65,7 +58,24 @@ class LoginPage extends StatelessWidget {
       );
     }
   } catch (e) {
-    print('Error: $e'); // Add this line to see any error that occurs during the request
+    print('Error: $e'); 
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: const Text('An error occurred.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
