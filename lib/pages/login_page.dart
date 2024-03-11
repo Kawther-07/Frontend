@@ -15,7 +15,7 @@ class LoginPage extends StatelessWidget {
 
   // sign user in method
   Future<void> signInUser(BuildContext context) async {
-  final Uri uri = Uri.parse('http://localhost:3000/api/patient/login');
+  final Uri uri = Uri.parse('http://192.168.1.69:3000/api/patient/login'); 
   final Map<String, dynamic> userData = {
     'email': emailController.text,
     'password': passwordController.text,
