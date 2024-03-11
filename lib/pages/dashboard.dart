@@ -104,6 +104,9 @@ class GlycemiaData {
   final double glycemia;
 
   GlycemiaData(this.date, this.glycemia);
+
+}
+
 }
 
 class ProfilePage extends StatelessWidget {
@@ -119,3 +122,4 @@ class ProfilePage extends StatelessWidget {
     );
   }
 }
+
