@@ -107,7 +107,6 @@ class GlycemiaData {
 
 }
 
-}
 
 class ProfilePage extends StatelessWidget {
   @override
