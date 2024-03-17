@@ -13,13 +13,12 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 class LoginPage extends StatelessWidget {
   LoginPage({Key? key}) : super(key: key);
 
-  // text editing controllers
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
   final storage = FlutterSecureStorage();
 
-  // sign user in method
+
   Future<void> signInUser(BuildContext context) async {
     final storage = FlutterSecureStorage();
 
@@ -50,7 +49,7 @@ class LoginPage extends StatelessWidget {
         final responseData = jsonDecode(response.body);
         final token = responseData['token'];
 
-        // Store the token securely
+        // Store the token 
         await storage.write(key: 'token', value: token);
 
         final decodedToken = jsonDecode(utf8.decode(base64.decode(base64.normalize(token.split('.')[1]))));
@@ -104,16 +103,16 @@ class LoginPage extends StatelessWidget {
     }
   }
 
-  // navigate to register page method
+  // navigate to register page
   void navigateToRegisterPage(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => RegisterPage(), // Replace `RegisterPage` with your register page class name
+        builder: (context) => RegisterPage(), 
       ),
     );
   }
 
-  // navigate to forgot password page method
+  // navigate to forgot password page 
   void navigateToForgotPasswordPage(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -131,48 +130,36 @@ class LoginPage extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 10),
+                const SizedBox(height: 0),
 
                 // Logo
                 Padding(
-                  padding: const EdgeInsets.only(top: 20),
+                  padding: const EdgeInsets.only(top: 0),
                   child: Image.asset(
-                    './lib/assets/Logo.png', // Replace 'assets/logo.png' with your logo image path
-                    width: 50,
-                    height: 50,
+                    'assets/Logo.png',
+                    width: 230,
+                    height: 230,
                   ),
                 ),
 
-                const SizedBox(height: 10),
-
-                // App Name
-                const Text(
-                  'AppName',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF5915BD),
-                  ),
-                ),
-
-                const SizedBox(height: 50),
+                const SizedBox(height: 5),
 
                 // Welcome back!
                 const Text(
                   'Welcome back!',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 20,
+                    fontSize: 22,
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 15),
 
                 // Please enter your details to sign in.
                 Text(
                   'Please enter your details to sign in.',
                   style: TextStyle(
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w500,
                     fontSize: 14,
                     color: Colors.grey.shade900,
                   ),
@@ -256,3 +243,5 @@ class LoginPage extends StatelessWidget {
     );
   }
 }
+
+//192.168.1.68

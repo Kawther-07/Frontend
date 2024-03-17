@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-// import 'package:flutter_application_1/pages/dashboard.dart';
 import 'login_page.dart';
+import 'register_page.dart'; 
 
 class WelcomePage extends StatelessWidget {
   @override
@@ -12,64 +12,66 @@ class WelcomePage extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Center(
-                  child: Column(
-                    children: [
-                      Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Container(
-                            width: 100,
-                            height: 100,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: LinearGradient(
-                                colors: [
-                                  Color(0xFF8D91FD),
-                                  Color(0xFF595DE5),
-                                ],
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                              ),
-                            ),
-                          ),
-                          Icon(
-                            Icons.circle,
-                            size: 100,
-                            color: Colors.transparent,
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 0),
-                      Text(
-                        'AppName',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF595DE5),
-                        ),
-                      ),
-                    ],
+                Padding(
+                  padding: const EdgeInsets.only(top: 0),
+                  child: Image.asset(
+                    'assets/Logo2.png', 
+                    width: 230,
+                    height: 230,
                   ),
                 ),
-                SizedBox(height: 40),
                 Text(
-                  'The Diabetic Foot Ulcer Management App',
+                  'Steer your health wheel in the',
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.grey[700],
+                    color: Colors.grey[800],
+                    fontWeight: FontWeight.w500,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 190),
                 Text(
-                  'Welcome to AppName!',
+                  'right direction.',
                   style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF595DE5),
+                    fontSize: 16,
+                    color: Colors.grey[800],
+                    fontWeight: FontWeight.w500,
                   ),
+                  textAlign: TextAlign.center,
                 ),
+
+                const SizedBox(height: 130),
+                const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Welcome to ',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF272727),
+                      ),
+                    ),
+                    Text(
+                      'DOOLAB',
+                      style: TextStyle(
+                        fontFamily: 'Bauhaus93',
+                        fontSize: 20,
+                        fontWeight: FontWeight.normal,
+                        color: Color(0xFF272727),
+                      ),
+                    ),
+                    Text(
+                      ' CARE!',
+                      style: TextStyle(
+                        fontFamily: 'Baskerville Old Face',
+                        fontSize: 20,
+                        fontWeight: FontWeight.normal,
+                        color: Color(0xFF272727),
+                      ),
+                    ),
+                  ],
+                ),
+
                 SizedBox(height: 25),
                 Text(
                   'The diabetic foot ulcer management app made for people with diabetes.',
@@ -81,14 +83,22 @@ class WelcomePage extends StatelessWidget {
                 ),
                 SizedBox(height: 32),
                 GestureDetector(
+                  onTap: () {
+                    // Navigate to register page
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => RegisterPage(),
+                      ),
+                    );
+                  },
                   child: Container(
                     padding: const EdgeInsets.all(15),
                     margin: const EdgeInsets.symmetric(horizontal: 25),
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
+                      gradient: LinearGradient(
                         colors: [
-                          Color(0xFF8D91FD),
-                          Color(0xFF595DE5),
+                          Color(0xFFA67CE4), 
+                          Color(0xFF5915BD), 
                         ],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
@@ -108,9 +118,14 @@ class WelcomePage extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 16),
-                // View Profile button
-                // View Profile button
                 GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => LoginPage(),
+                      ),
+                    );
+                  },
                   child: Container(
                     padding: const EdgeInsets.all(15),
                     margin: const EdgeInsets.symmetric(horizontal: 25),
@@ -118,7 +133,7 @@ class WelcomePage extends StatelessWidget {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: Color(0xFF595DE5),
+                        color: Color(0xFF5915BD),
                         width: 2,
                       ),
                     ),
@@ -126,7 +141,7 @@ class WelcomePage extends StatelessWidget {
                       child: Text(
                         'LOG IN',
                         style: TextStyle(
-                          color: Color(0xFF595DE5),
+                          color: Color(0xFF5915BD), 
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),

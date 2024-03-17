@@ -17,11 +17,9 @@ class _VerificationPageState extends State<VerificationPage> {
   @override
   void initState() {
     super.initState();
-    // Set up listeners for focus nodes
     for (int i = 0; i < 4; i++) {
       focusNodes[i].addListener(() {
         if (focusNodes[i].hasFocus && digitControllers[i].text.isNotEmpty) {
-          // Move focus to the next box if the current box has text
           if (i < 3) {
             FocusScope.of(context).requestFocus(focusNodes[i + 1]);
           }
@@ -32,7 +30,6 @@ class _VerificationPageState extends State<VerificationPage> {
 
   @override
   void dispose() {
-    // Dispose focus nodes and controllers
     for (int i = 0; i < 4; i++) {
       digitControllers[i].dispose();
       focusNodes[i].dispose();
@@ -40,7 +37,6 @@ class _VerificationPageState extends State<VerificationPage> {
     super.dispose();
   }
 
-  // navigate to forgot password page method
   void navigateToForgotPasswordPage(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -67,49 +63,18 @@ class _VerificationPageState extends State<VerificationPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SizedBox(height: 10),
-                // Logo (same as login page)
-                Center(
-                  child: Column(
-                    children: [
-                      Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Container(
-                            width: 100,
-                            height: 100,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: LinearGradient(
-                                colors: [
-                                  Color(0xFF8D91FD), // First color
-                                  Color(0xFF595DE5), // Second color
-                                ],
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                              ),
-                            ),
-                          ),
-                          Icon(
-                            Icons.circle,
-                            size: 100,
-                            color: Colors.transparent,
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 10), 
-                      Text(
-                        'AppName',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF595DE5),
-                        ),
-                      ),
-                    ],
+
+                // Logo
+                Padding(
+                  padding: const EdgeInsets.only(top: 0),
+                  child: Image.asset(
+                    'assets/Logo2.png', 
+                    width: 230,
+                    height: 230,
                   ),
                 ),
 
-                SizedBox(height: 50),
+                SizedBox(height: 15),
 
                 // Verification
                 Text(
@@ -135,9 +100,9 @@ class _VerificationPageState extends State<VerificationPage> {
                   ),
                 ),
 
-                SizedBox(height: 50),
+                SizedBox(height: 30),
 
-                // 4 Boxes to enter the 4 digits
+                // Boxes 
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25),
                   child: Row(
@@ -154,19 +119,17 @@ class _VerificationPageState extends State<VerificationPage> {
                           decoration: InputDecoration(
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10.0),
-                              borderSide: BorderSide(color: Colors.grey[400] ?? Colors.grey), // Use Colors.grey as default
+                              borderSide: BorderSide(color: Colors.grey[400] ?? Colors.grey), 
                             ),
-                            counterText: '', // Remove character count text
+                            counterText: '',
                           ),
-                          maxLength: 1, // Limit input to one character
+                          maxLength: 1,
                           onChanged: (value) {
-                            // Move focus to the next box when the user enters a digit
                             if (value.isNotEmpty && index < 3) {
                               FocusScope.of(context).requestFocus(focusNodes[index + 1]);
                             }
                           },
                           onTap: () {
-                            // Clear the box when tapped
                             digitControllers[index].clear();
                           },
                         ),
@@ -175,13 +138,12 @@ class _VerificationPageState extends State<VerificationPage> {
                   ),
                 ),
 
-                SizedBox(height: 100),
+                SizedBox(height: 60),
 
-                // Verify now button
+                // Verify button
                 MyButton(
                   text: "Verify Now",
                   onTap: () {
-                    // Navigate to the ResetPasswordPage
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => ResetPasswordPage()),
@@ -204,14 +166,13 @@ class _VerificationPageState extends State<VerificationPage> {
                       Text(
                         'Resend Code',
                         style: TextStyle(
-                          color: Colors.blue,
+                          color: Color(0xFF218BBC),
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
                   ),
                 ),
-                
               ],
             ),
           ),
