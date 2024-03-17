@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class MyButton extends StatelessWidget {
-  const MyButton({super.key, required this.onTap, required this.text});
+  const MyButton({Key? key, required this.onTap, required this.text})
+      : super(key: key);
   
   final Function()? onTap;
   final String text;
@@ -16,14 +17,14 @@ class MyButton extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: const LinearGradient(
             colors: [
-              Color(0xFF8D91FD),
-              Color(0xFF595DE5),
+              Color(0xFFA67CE4), // First color
+              Color(0xFF5915BD), // Second color
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
           borderRadius: BorderRadius.circular(8),
-          ),
+        ),
         child: Center(
           child: Text(
             text,
@@ -31,8 +32,9 @@ class MyButton extends StatelessWidget {
               color: Colors.white,
               fontWeight: FontWeight.bold,
               fontSize: 16,
-              ),
-            ),),
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
-import 'profile_page.dart';
+import 'patient_profile_page.dart';
 import 'components/my_button.dart';
 
 class MyApp extends StatelessWidget {
@@ -51,29 +51,29 @@ class DashboardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Glycemia Dashboard'),
+        title: const Text(''),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(16.0),
-              height: 300,
+              padding: const EdgeInsets.all(20.0),
+              height: 250,
               child: _buildChart(),
             ),
 
             const SizedBox(height: 80),
 
-            MyButton( 
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ProfilePage()),
-                );
-              },
-              text: 'Go to Profile',
-            ),
+            // MyButton( 
+            //   onTap: () {
+            //     // Navigator.push(
+            //     //   context,
+            //     //   MaterialPageRoute(builder: (context) => ProfilePage()),
+            //     // );
+            //   },
+            //   text: 'Go to Profile',
+            // ),
           ],
         ),
       ),
@@ -108,17 +108,17 @@ class GlycemiaData {
 }
 
 
-class ProfilePage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile'),
-      ),
-      body: const Center(
-        child: Text('Profile Page'),
-      ),
-    );
-  }
-}
+// class ProfilePage extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text('Profile'),
+//       ),
+//       body: const Center(
+//         child: Text('Profile Page'),
+//       ),
+//     );
+//   }
+// }
 
