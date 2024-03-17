@@ -4,7 +4,6 @@ import 'package:flutter_application_1/pages/components/my_texfield.dart';
 import 'package:flutter_application_1/pages/home_page.dart';
 import 'package:http/http.dart' as http;
 import 'login_page.dart';
-import 'next_page2.dart'; 
 import 'home_page.dart';
 
 class RegisterPage extends StatelessWidget {
@@ -19,7 +18,7 @@ class RegisterPage extends StatelessWidget {
   final TextEditingController passwordController = TextEditingController();
 
   Future<void> registerUser(BuildContext context) async {
-    final Uri uri = Uri.parse('http://localhost:3000/api/patient');
+    final Uri uri = Uri.parse('http://192.168.1.69:3000/api/patient');
     final Map<String, dynamic> userData = {
       'first_name': fnameController.text,
       'last_name': lnameController.text,

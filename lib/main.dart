@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/pages/profile_page.dart';
+import 'package:flutter_application_1/pages/patient_profile_page.dart';
+import 'package:flutter_application_1/pages/welcome_page.dart';
 import 'pages/login_page.dart';
 import 'pages/register_page.dart';
-import 'pages/dashboard.dart';
-import 'package:flutter_application_1/pages/dashboard.dart';
+import 'pages/stats.dart';
+import 'package:flutter_application_1/pages/stats.dart';
 import 'pages/login_page.dart';
 import 'pages/register_page.dart';
 import 'pages/login_page.dart';
 import 'pages/register_page.dart';
+import 'pages/home_page.dart';
 
 void main() {
   runApp(const MyApp());
