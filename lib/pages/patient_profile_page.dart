@@ -28,11 +28,14 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
 
   final storage = FlutterSecureStorage();
 
+  late List<bool> _isTappedList;
+
   @override
   void initState() {
     super.initState();
     fetchProfileData();
-    fetchMedicalRecordData(); // Call the method to fetch medical record data
+    fetchMedicalRecordData(); 
+     _isTappedList = List.filled(7, false);
   }
 
   Future<void> fetchProfileData() async {
@@ -96,16 +99,20 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
 }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Profile'),
-      ),
-      body: Center(
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: Text('More'),
+    ),
+    body: SingleChildScrollView(
+      padding: EdgeInsets.only(top: 50), // Adjust top padding as needed
+      child: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            GestureDetector(
+            buildButton(
+              index: 0,
+              icon: Icons.person,
+              label: "Personal Profile",
               onTap: () async {
                 await fetchProfileData();
                 Navigator.push(
@@ -115,33 +122,11 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
                   ),
                 );
               },
-              child: Container(
-                padding: const EdgeInsets.all(15),
-                margin: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Color(0xFFA67CE4),
-                      Color(0xFF5915BD),
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Center(
-                  child: Text(
-                    "Personal Profile",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-              ),
             ),
-            GestureDetector(
+            buildButton(
+              index: 1,
+              icon: Icons.local_hospital,
+              label: "Medical Record",
               onTap: () async {
                 await fetchMedicalRecordData();
                 Navigator.push(
@@ -151,33 +136,11 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
                   ),
                 );
               },
-              child: Container(
-                padding: const EdgeInsets.all(15),
-                margin: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Color(0xFFA67CE4),
-                      Color(0xFF5915BD),
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Center(
-                  child: Text(
-                    "Medical Record",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-              ),
             ),
-            GestureDetector(
+            buildButton(
+              index: 2,
+              icon: Icons.description,
+              label: "DFU Record",
               onTap: () {
                 Navigator.push(
                   context,
@@ -186,41 +149,111 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
                   ),
                 );
               },
-              child: Container(
-                padding: const EdgeInsets.all(15),
-                margin: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Color(0xFFA67CE4),
-                      Color(0xFF5915BD),
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Center(
-                  child: Text(
-                    "DFU Record",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
+            ),
+            buildButton(
+              index: 3,
+              icon: Icons.bar_chart,
+              label: "Stats",
+              onTap: () {
+                // Handle tap for Stats button
+                // Navigate to the Stats page
+              },
+            ),
+            buildButton(
+              index: 4,
+              icon: Icons.school,
+              label: "Education",
+              onTap: () {
+                // Handle tap for Education button
+                // Navigate to the Education page
+              },
+            ),
+            buildButton(
+              index: 5,
+              icon: Icons.settings,
+              label: "Settings",
+              onTap: () {
+                // Handle tap for Settings button
+                // Navigate to the Settings page
+              },
+            ),
+            buildButton(
+              index: 6,
+              icon: Icons.question_mark,
+              label: "About us",
+              onTap: () {
+                // Handle tap for Settings button
+                // Navigate to the Settings page
+              },
+            ),
+          ],
+        ),
+      ),
+    ),
+    bottomNavigationBar: CustomBottomNavigationBar(
+      currentIndex: widget.currentIndex,
+      onTap: (index) => _handleItemTap(index),
+    ),
+  );
+}
+
+
+
+Widget buildButton({required int index, required IconData icon, required String label, required Function onTap}) {
+    return GestureDetector(
+      onTapDown: (_) {
+        setState(() {
+          _isTappedList[index] = true;
+        });
+      },
+      onTapUp: (_) {
+        setState(() {
+          _isTappedList[index] = false;
+        });
+      },
+      onTapCancel: () {
+        setState(() {
+          _isTappedList[index] = false;
+        });
+      },
+      onTap: onTap as void Function()?,
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+        margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 10),
+        decoration: BoxDecoration(
+        border: _isTappedList[index]
+            ? Border(
+                top: BorderSide(color: Color(0xFFD3D3D3), width: 1.0),
+                bottom: BorderSide(color: Color(0xFFD3D3D3), width: 1.0),
+              )
+            : null,
+        borderRadius: BorderRadius.circular(0),
+      ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              color: Color(0xFF505050), // Icon color
+              size: 24,
+            ),
+            SizedBox(width: 10),
+            Text(
+              label,
+              style: TextStyle(
+                color: Color(0xFF5915BD), // Text color
+                fontWeight: FontWeight.w500,
+                fontSize: 16,
               ),
             ),
           ],
         ),
       ),
-      bottomNavigationBar: CustomBottomNavigationBar(
-        currentIndex: widget.currentIndex,
-        onTap: (index) => _handleItemTap(index),
-      ),
     );
   }
+
+
+
+
 
    @override
   void didChangeDependencies() {
