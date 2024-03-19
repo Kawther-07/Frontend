@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/pages/components/CustomBottomNavigationBar.dart';
 import 'package:flutter_application_1/pages/dfu_record_page.dart';
+import 'package:flutter_application_1/pages/education_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -164,8 +165,12 @@ Widget build(BuildContext context) {
               icon: Icons.school,
               label: "Education",
               onTap: () {
-                // Handle tap for Education button
-                // Navigate to the Education page
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EducationPage(),
+                  ),
+                );
               },
             ),
             buildButton(
