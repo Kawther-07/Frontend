@@ -123,89 +123,95 @@ Future<void> resetPassword(BuildContext context) async {
 
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-      ),
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(height: 10),
+Widget build(BuildContext context) {
+  return Scaffold(
+    body: SafeArea(
+      child: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 50),
 
-                // Logo
-                Padding(
-                  padding: const EdgeInsets.only(top: 0),
-                  child: Image.asset(
-                    'assets/Logo2.png',
-                    width: 230,
-                    height: 230,
+                  // Logo
+                  Padding(
+                    padding: const EdgeInsets.only(top: 0),
+                    child: Image.asset(
+                      'assets/Logo2.png',
+                      width: 230,
+                      height: 230,
+                    ),
                   ),
-                ),
 
-                const SizedBox(height: 0),
+                  const SizedBox(height: 0),
 
-                // Reset password
-                const Text(
-                  'Reset Password',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
+                  // Reset password
+                  const Text(
+                    'Reset Password',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
                   ),
-                ),
 
-                const SizedBox(height: 10),
+                  const SizedBox(height: 10),
 
-                // Please enter your new password.
-                Text(
-                  'Please enter your new password.',
-                  style: TextStyle(
-                    fontWeight: FontWeight.normal,
-                    fontSize: 14,
-                    color: Colors.grey.shade900,
+                  // Please enter your new password.
+                  Text(
+                    'Please enter your new password.',
+                    style: TextStyle(
+                      fontWeight: FontWeight.normal,
+                      fontSize: 14,
+                      color: Colors.grey.shade900,
+                    ),
                   ),
-                ),
 
-                const SizedBox(height: 50),
+                  const SizedBox(height: 50),
 
-                // New Password
-                MyTextField(
-                  controller: newPasswordController,
-                  hintText: 'New Password',
-                  obscureText: true,
-                  icon: Icons.lock,
-                ),
+                  // New Password
+                  MyTextField(
+                    controller: newPasswordController,
+                    hintText: 'New Password',
+                    obscureText: true,
+                    icon: Icons.lock,
+                  ),
 
-                const SizedBox(height: 10),
+                  const SizedBox(height: 10),
 
-                // Confirm Password
-                MyTextField(
-                  controller: confirmPasswordController,
-                  hintText: 'Confirm Password',
-                  obscureText: true,
-                  icon: Icons.lock,
-                ),
+                  // Confirm Password
+                  MyTextField(
+                    controller: confirmPasswordController,
+                    hintText: 'Confirm Password',
+                    obscureText: true,
+                    icon: Icons.lock,
+                  ),
 
-                const SizedBox(height: 80),
+                  const SizedBox(height: 80),
 
-                // Reset button
-                MyButton(
-                  text: "Reset Password",
-                  onTap: () => resetPassword(context),
-                ),
-              ],
+                  // Reset button
+                  MyButton(
+                    text: "Reset Password",
+                    onTap: () => resetPassword(context),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
+          Positioned(
+            left: 10,
+            top: 10,
+            child: IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
+
+
 }

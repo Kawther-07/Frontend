@@ -72,23 +72,16 @@ class _VerificationPageState extends State<VerificationPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-      ),
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
+Widget build(BuildContext context) {
+  return Scaffold(
+    body: SafeArea(
+      child: Stack(
+        children: [
+          SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox(height: 10),
+                SizedBox(height: 50),
 
                 // Logo
                 Padding(
@@ -197,8 +190,20 @@ class _VerificationPageState extends State<VerificationPage> {
               ],
             ),
           ),
-        ),
+          // Positioned back arrow button
+          Positioned(
+            left: 10,
+            top: 10,
+            child: IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
+
+
 }
