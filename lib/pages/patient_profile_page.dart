@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/pages/home_page.dart';
+import 'package:flutter_application_1/pages/dfu_record_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -19,12 +19,15 @@ class PatientProfilePage extends StatefulWidget {
 class _PatientProfilePageState extends State<PatientProfilePage> {
 
   Map<String, dynamic>? profileData;
+  Map<String, dynamic>? medicalRecordData; // Add medical record data
+
   final storage = FlutterSecureStorage();
 
   @override
   void initState() {
     super.initState();
     fetchProfileData();
+    fetchMedicalRecordData(); // Call the method to fetch medical record data
   }
 
   Future<void> fetchProfileData() async {
@@ -41,7 +44,6 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
 
       if (profileResponse.statusCode == 200) {
         final fetchedProfileData = jsonDecode(profileResponse.body);
-
         setState(() {
           profileData = fetchedProfileData['profile']; // Access profile data from the 'profile' key
         });
@@ -53,113 +55,260 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
     }
   }
 
+  // Method to fetch medical record data
+  Future<void> fetchMedicalRecordData() async {
+    try {
+      final storage = FlutterSecureStorage();
+      final token = await storage.read(key: 'token');
+
+      final medicalRecordResponse = await http.get(
+        Uri.parse('http://192.168.1.68:3000/api/medical-record/${widget.patientId}'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (medicalRecordResponse.statusCode == 200) {
+        final fetchedMedicalRecordData = jsonDecode(medicalRecordResponse.body)['medical-record'];
+        setState(() {
+          medicalRecordData = fetchedMedicalRecordData;
+        });
+        print('Medical record response body: ${medicalRecordResponse.body}');
+
+      } else {
+        throw Exception('Failed to fetch medical record: ${medicalRecordResponse.statusCode}');
+      }
+    } catch (error) {
+      print('Error fetching medical record data: $error');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Profile'),
       ),
-      body: profileData != null
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(height: 10),
-                  Text(
-                    'Gender: ${profileData!['gender']}',
-                    style: TextStyle(fontSize: 18),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            GestureDetector(
+              onTap: () async {
+                await fetchProfileData();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PersonalProfilePage(profileData: profileData),
                   ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Height: ${profileData!['height']}',
-                    style: TextStyle(fontSize: 18),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.all(15),
+                margin: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFFA67CE4),
+                      Color(0xFF5915BD),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
                   ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Weight: ${profileData!['weight']}',
-                    style: TextStyle(fontSize: 18),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Center(
+                  child: Text(
+                    "Personal Profile",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Birth Date: ${profileData!['birth_date']}',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                ],
+                ),
               ),
-            )
-          : Center(
-              child: CircularProgressIndicator(),
             ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home, color: widget.currentIndex == 0 ? Color(0xFF5915BD) : Color(0xFF505050)),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart, color: widget.currentIndex == 1 ? Color(0xFF5915BD) : Color(0xFF505050)),
-            label: 'Stats',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.school, color: widget.currentIndex == 2 ? Color(0xFF5915BD) : Color(0xFF505050)),
-            label: 'Education',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person, color: widget.currentIndex == 3 ? Color(0xFF5915BD) : Color(0xFF505050)),
-            label: 'Profile',
-          ),
-        ],
-        currentIndex: widget.currentIndex,
-        selectedItemColor: Color(0xFF5915BD),
-        unselectedItemColor: Color(0xFF505050),
-        onTap: _onItemTapped,
+            GestureDetector(
+              onTap: () async {
+                await fetchMedicalRecordData();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MedicalRecordPage(medicalRecordData: medicalRecordData),
+                  ),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.all(15),
+                margin: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFFA67CE4),
+                      Color(0xFF5915BD),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Center(
+                  child: Text(
+                    "Medical Record",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DFURecordPage(),
+                  ),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.all(15),
+                margin: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFFA67CE4),
+                      Color(0xFF5915BD),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Center(
+                  child: Text(
+                    "DFU Record",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
+}
 
-  void _onItemTapped(int index) {
-  if (index != widget.currentIndex) {
-    setState(() {
-      widget.currentIndex = index;
-    });
+// Personal Profile Page
+class PersonalProfilePage extends StatelessWidget {
+  final Map<String, dynamic>? profileData;
 
-    switch (index) {
-      case 0:
-        // Navigate to the home page
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => HomePage(patientId: widget.patientId),
-          ),
-        );
-        break;
-      case 1:
-        // Handle navigation to Stats page
-        break;
-      case 2:
-        // Handle navigation to Education page
-        break;
-      case 3:
-        // Check if patientId is available
-        if (widget.patientId != null) {
-          // Navigate to the profile page passing patientId and the current selected index
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => PatientProfilePage(
-                patientId: widget.patientId!,
-                currentIndex: index,
-                onItemTapped: widget.onItemTapped,
-              ),
+  PersonalProfilePage({Key? key, required this.profileData}) : super(key: key);
+
+  @override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: Text('Personal Profile'),
+    ),
+    body: Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (profileData != null) ...[
+            Text(
+              'Gender: ${profileData!['gender']}',
+              style: TextStyle(fontSize: 18),
             ),
-          );
-        } else {
-          // Patient ID is null
-          print('Patient ID is null');
-        }
-        break;
-    }
-  }
+            SizedBox(height: 10),
+            Text(
+              'Height: ${profileData!['height']}',
+              style: TextStyle(fontSize: 18),
+            ),
+            SizedBox(height: 10),
+            Text(
+              'Weight: ${profileData!['weight']}',
+              style: TextStyle(fontSize: 18),
+            ),
+            SizedBox(height: 10),
+            Text(
+              'Birth Date: ${profileData!['birth_date']}',
+              style: TextStyle(fontSize: 18),
+            ),
+          ] else ...[
+            CircularProgressIndicator(),
+            SizedBox(height: 10),
+            Text(
+              'Profile data is loading...',
+              style: TextStyle(fontSize: 18),
+            ),
+          ],
+        ],
+      ),
+    ),
+  );
+}
+}
+
+// Medical Record Page
+class MedicalRecordPage extends StatelessWidget {
+  final Map<String, dynamic>? medicalRecordData;
+
+  MedicalRecordPage({Key? key, required this.medicalRecordData}) : super(key: key);
+
+  @override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: Text('Medical Record'),
+    ),
+    body: Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (medicalRecordData != null) ...[
+            Text(
+              'Diabetes Type: ${medicalRecordData!['diabetesType']}',
+              style: TextStyle(fontSize: 18),
+            ),
+            SizedBox(height: 10),
+            Text(
+              'Has DFU: ${medicalRecordData!['hasDFU']}',
+              style: TextStyle(fontSize: 18),
+            ),
+            Text(
+                    'Is Smoker: ${medicalRecordData!['isSmoker']}',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'Diabetes Date: ${medicalRecordData!['hadDiabetes']}',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  Text(
+                    'Blood group: ${medicalRecordData!['bloodGroup']}',
+                    style: TextStyle(fontSize: 18),
+                  ),
+            
+          ] else ...[
+            CircularProgressIndicator(),
+            SizedBox(height: 10),
+            Text(
+              'Medical record data is loading...',
+              style: TextStyle(fontSize: 18),
+            ),
+          ],
+        ],
+      ),
+    ),
+  );
 }
 }

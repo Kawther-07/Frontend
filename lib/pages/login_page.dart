@@ -19,76 +19,58 @@ class LoginPage extends StatelessWidget {
   final storage = FlutterSecureStorage();
 
 
-  Future<void> signInUser(BuildContext context) async {
-    final storage = FlutterSecureStorage();
+Future<void> signInUser(BuildContext context) async {
+  final storage = FlutterSecureStorage();
 
-    try {
-      final String email = emailController.text;
-      final String password = passwordController.text;
+  try {
+    final String email = emailController.text;
+    final String password = passwordController.text;
 
-      if (email.isEmpty || password.isEmpty) {
-        throw 'Please fill in both email and password fields.';
-      }
+    if (email.isEmpty || password.isEmpty) {
+      throw 'Please fill in both email and password fields.';
+    }
 
-      final Uri uri = Uri.parse('http://192.168.1.68:3000/api/patient/login');
-      final http.Response response = await http.post(
-        uri,
-        headers: <String, String>{
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-        }),
+    final Uri uri = Uri.parse('http://192.168.1.68:3000/api/patient/login');
+    final http.Response response = await http.post(
+      uri,
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'email': email,
+        'password': password,
+      }),
+    );
+
+    print('Response status code: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      final token = responseData['token'];
+
+      // Store the token 
+      await storage.write(key: 'token', value: token);
+
+      final decodedToken = jsonDecode(utf8.decode(base64.decode(base64.normalize(token.split('.')[1]))));
+      
+      // Extract the patientId from the decoded token
+      final patientId = decodedToken['id'];
+
+      // Navigate to the welcome page with patientId
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => HomePage(patientId: patientId),
+        ),
       );
-
-      print('Response status code: ${response.statusCode}');
-      print('Response body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-        final token = responseData['token'];
-
-        // Store the token 
-        await storage.write(key: 'token', value: token);
-
-        final decodedToken = jsonDecode(utf8.decode(base64.decode(base64.normalize(token.split('.')[1]))));
-        final patientId = decodedToken['id'];
-
-        // Navigate to the welcome page with patientId
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => HomePage(patientId: patientId),
-          ),
-        );
-      } else {
-        print('Login failed: ${response.statusCode} - ${response.body}');
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('Error'),
-              content: Text('Failed to sign in user.'),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
-      }
-    } catch (error) {
-      print('Error during login: $error');
+    } else {
+      print('Login failed: ${response.statusCode} - ${response.body}');
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text('Error'),
-            content: Text('An error occurred.'),
+            content: Text('Failed to sign in user.'),
             actions: <Widget>[
               TextButton(
                 onPressed: () {
@@ -101,7 +83,34 @@ class LoginPage extends StatelessWidget {
         },
       );
     }
+  } catch (error) {
+    print('Error during login: $error');
+    String errorMessage = 'An error occurred.';
+
+    if (error.toString().contains('Please fill in both email and password fields.')) {
+      errorMessage = 'Email or password are incorrect.';
+    }
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Error'),
+          content: Text(errorMessage),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
+}
+
 
   // navigate to register page
   void navigateToRegisterPage(BuildContext context) {
@@ -114,12 +123,12 @@ class LoginPage extends StatelessWidget {
 
   // navigate to forgot password page 
   void navigateToForgotPasswordPage(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => ForgotPassword(),
-      ),
-    );
-  }
+  Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (context) => ForgotPassword(),
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -243,5 +252,3 @@ class LoginPage extends StatelessWidget {
     );
   }
 }
-
-//192.168.1.68

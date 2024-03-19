@@ -18,7 +18,7 @@ class RegisterPage extends StatelessWidget {
   final TextEditingController passwordController = TextEditingController();
 
   Future<void> registerUser(BuildContext context) async {
-    final Uri uri = Uri.parse('http://192.168.1.69:3000/api/patient');
+    final Uri uri = Uri.parse('http://192.168.1.68:3000/api/patient');
     final Map<String, dynamic> userData = {
       'first_name': fnameController.text,
       'last_name': lnameController.text,
@@ -104,7 +104,7 @@ class RegisterPage extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
 
-SizedBox(height: 15),
+                SizedBox(height: 15),
                 MyTextField(
                   controller: fnameController,
                   hintText: 'First name',

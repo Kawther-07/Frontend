@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/pages/components/my_button.dart';
 import 'forgot_password.dart'; 
 import 'resetPassword_page.dart';
+import 'password_reset_manager.dart'; // Import PasswordResetManager
 
 class VerificationPage extends StatefulWidget {
   VerificationPage({Key? key}) : super(key: key);
@@ -43,6 +44,31 @@ class _VerificationPageState extends State<VerificationPage> {
         builder: (context) => ForgotPassword(),
       ),
     );
+  }
+
+  void verifyCode(BuildContext context) {
+    // Concatenate the digits entered in the text fields to form the verification code
+    String verificationCode = digitControllers.map((controller) => controller.text).join();
+
+    // Retrieve the stored email from PasswordResetManager
+    String? email = PasswordResetManager.userEmail;
+
+    if (email != null && verificationCode.length == 4) {
+      // Proceed with verification using the email and verification code
+      // You can handle verification logic here, such as sending a request to your backend
+
+      // After successful verification, you can navigate to the password reset page
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => ResetPasswordPage()),
+      );
+    } else {
+      // Handle invalid verification code or missing email
+      // For example, show an error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Invalid verification code or missing email')),
+      );
+    }
   }
 
   @override
@@ -143,12 +169,7 @@ class _VerificationPageState extends State<VerificationPage> {
                 // Verify button
                 MyButton(
                   text: "Verify Now",
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => ResetPasswordPage()),
-                    );
-                  },
+                  onTap: () => verifyCode(context),
                 ),
 
                 SizedBox(height: 15),

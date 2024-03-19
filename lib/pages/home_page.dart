@@ -17,7 +17,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false, 
+        automaticallyImplyLeading: false,
         title: SizedBox.shrink(),
       ),
       body: Padding(
@@ -335,6 +335,23 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  void _navigateToProfilePage() {
+    if (widget.patientId != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PatientProfilePage(
+            patientId: widget.patientId!,
+            currentIndex: _selectedIndex,
+            onItemTapped: _handleItemTap,
+          ),
+        ),
+      );
+    } else {
+      print('Patient ID is null');
+    }
+  }
+
   void _handleItemTap(int index) {
     setState(() {
       _selectedIndex = index;
@@ -355,7 +372,7 @@ class FootConditionCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.grey), 
+        border: Border.all(color: Colors.grey),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(15),
