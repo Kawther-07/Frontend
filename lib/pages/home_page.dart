@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/pages/auth_service.dart';
+import 'package:flutter_application_1/pages/components/CustomBottomNavigationBar.dart';
 import 'patient_profile_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -46,7 +48,10 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     IconButton(
                       icon: Icon(Icons.logout, color: Colors.white),
-                      onPressed: () {},
+                      onPressed: () {
+                        // Call the logout method from the AuthService class
+                        AuthService.logout(context);
+                      },
                     ),
                     Row(
                       children: [
@@ -60,7 +65,8 @@ class _HomePageState extends State<HomePage> {
                     ),
                     IconButton(
                       icon: Icon(Icons.settings, color: Colors.white),
-                      onPressed: () {},
+                      onPressed: () {
+                      },
                     ),
                   ],
                 ),
@@ -263,30 +269,8 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home, color: _selectedIndex == 0 ? Color(0xFF5915BD) : Color(0xFF505050)),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart, color: _selectedIndex == 1 ? Color(0xFF5915BD) : Color(0xFF505050)),
-            label: 'Stats',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.school, color: _selectedIndex == 2 ? Color(0xFF5915BD) : Color(0xFF505050)),
-            label: 'Education',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person, color: _selectedIndex == 3 ? Color(0xFF5915BD) : Color(0xFF505050)),
-            label: 'Profile',
-          ),
-        ],
+      bottomNavigationBar: CustomBottomNavigationBar(
         currentIndex: _selectedIndex,
-        selectedItemColor: Color(0xFF5915BD),
-        unselectedItemColor: Color(0xFF505050),
-        selectedLabelStyle: TextStyle(color: Color(0xFF5915BD)),
         onTap: _onItemTapped,
       ),
     );
@@ -316,17 +300,17 @@ class _HomePageState extends State<HomePage> {
         case 2:
           break;
         case 3:
-          if (widget.patientId != null) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => PatientProfilePage(
-                  patientId: widget.patientId!,
-                  currentIndex: _selectedIndex,
-                  onItemTapped: _handleItemTap,
-                ),
+        if (widget.patientId != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PatientProfilePage(
+                patientId: widget.patientId!,
+                currentIndex: _selectedIndex,
+                onItemTapped: _handleItemTap,
               ),
-            );
+            ),
+          );
           } else {
             print('Patient ID is null');
           }
@@ -346,7 +330,12 @@ class _HomePageState extends State<HomePage> {
             onItemTapped: _handleItemTap,
           ),
         ),
-      );
+         ).then((value) {
+      // Reset selectedIndex when returning from profile page
+      setState(() {
+        _selectedIndex = 0;
+      });
+    });
     } else {
       print('Patient ID is null');
     }
