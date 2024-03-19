@@ -16,69 +16,63 @@ class ForgotPassword extends StatelessWidget {
     Navigator.of(context).pop();
   }
 
-Future<void> sendVerificationCode(BuildContext context) async {
-  final String email = emailController.text;
-  
-  // Store the email in PasswordResetManager
-  PasswordResetManager.userEmail = email;
+  Future<void> sendVerificationCode(BuildContext context) async {
+    final String email = emailController.text;
+    
+    // Store the email in PasswordResetManager
+    PasswordResetManager.userEmail = email;
 
-  final Uri uri = Uri.parse('http://192.168.1.68:3000/api/forgot-password');
-  final http.Response response = await http.post(
-    uri,
-    headers: <String, String>{
-      'Content-Type': 'application/json',
-    },
-    body: jsonEncode({'email': email}),
-  );
-
-  print('Response status code: ${response.statusCode}');
-  print('Response body: ${response.body}');
-
-  if (response.statusCode == 200) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => VerificationPage(),
-      ),
-    );
-  } else {
-    print('Failed to send verification code: ${response.statusCode} - ${response.body}');
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Error'),
-          content: Text('Failed to send verification code. Please try again.'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('OK'),
-            ),
-          ],
-        );
+    final Uri uri = Uri.parse('http://192.168.1.68:3000/api/forgot-password');
+    final http.Response response = await http.post(
+      uri,
+      headers: <String, String>{
+        'Content-Type': 'application/json',
       },
+      body: jsonEncode({'email': email}),
     );
-  }
-}
 
+    print('Response status code: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => VerificationPage(),
+        ),
+      );
+    } else {
+      print('Failed to send verification code: ${response.statusCode} - ${response.body}');
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('Failed to send verification code. Please try again.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () => navigateBack(context),
-        ),
-      ),
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
+Widget build(BuildContext context) {
+  return Scaffold(
+    body: SafeArea(
+      child: Stack(
+        children: [
+          SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox(height: 0),
+                SizedBox(height: 50),
                 // Logo
                 Padding(
                   padding: const EdgeInsets.only(top: 0),
@@ -127,8 +121,17 @@ Future<void> sendVerificationCode(BuildContext context) async {
               ],
             ),
           ),
-        ),
+          Positioned(
+            left: 10,
+            top: 10,
+            child: IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () => navigateBack(context),
+            ),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 }
