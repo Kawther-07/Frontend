@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/pages/components/CustomBottomNavigationBar.dart';
 import 'package:flutter_application_1/pages/dfu_record_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -10,7 +11,11 @@ class PatientProfilePage extends StatefulWidget {
   int currentIndex; // New field to store the current selected index
   final Function(int) onItemTapped; // Callback function to handle item tap
 
-  PatientProfilePage({Key? key, required this.patientId, required this.currentIndex, required this.onItemTapped}) : super(key: key);
+  PatientProfilePage({
+    Key? key, required this.patientId, 
+    required this.currentIndex, 
+    required this.onItemTapped
+    }) : super(key: key);
 
   @override
   _PatientProfilePageState createState() => _PatientProfilePageState();
@@ -47,6 +52,7 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
         setState(() {
           profileData = fetchedProfileData['profile']; // Access profile data from the 'profile' key
         });
+        print('Profile Data: $profileData');
       } else {
         throw Exception('Failed to fetch patient profile: ${profileResponse.statusCode}');
       }
@@ -82,6 +88,12 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
       print('Error fetching medical record data: $error');
     }
   }
+
+  void _handleItemTap(int index) {
+  // Call the onItemTapped callback function to update selectedIndex in HomePage
+  widget.onItemTapped(index);
+  Navigator.pop(context); // Return to the previous screen
+}
 
   @override
   Widget build(BuildContext context) {
@@ -203,9 +215,26 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
           ],
         ),
       ),
+      bottomNavigationBar: CustomBottomNavigationBar(
+        currentIndex: widget.currentIndex,
+        onTap: (index) => _handleItemTap(index),
+      ),
     );
   }
+
+   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Reset selectedIndex when returning from profile page
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      if (widget.currentIndex != 0) {
+        widget.onItemTapped(0);
+      }
+    });
+  }
 }
+
+
 
 // Personal Profile Page
 class PersonalProfilePage extends StatelessWidget {

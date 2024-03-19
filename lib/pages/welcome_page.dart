@@ -134,7 +134,7 @@ class WelcomePage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
                         color: Color(0xFF5915BD),
-                        width: 2,
+                        width: 1.5,
                       ),
                     ),
                     child: const Center(
