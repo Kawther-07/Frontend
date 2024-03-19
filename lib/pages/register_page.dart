@@ -18,7 +18,7 @@ class RegisterPage extends StatelessWidget {
   final TextEditingController passwordController = TextEditingController();
 
   Future<void> registerUser(BuildContext context) async {
-    final Uri uri = Uri.parse('http://192.168.1.69:3000/api/patient');
+    final Uri uri = Uri.parse('http://192.168.1.68:3000/api/patient');
     final Map<String, dynamic> userData = {
       'first_name': fnameController.text,
       'last_name': lnameController.text,
@@ -86,61 +86,32 @@ class RegisterPage extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 0),
-                
-                // logo
-                Center(
-                  child: Column(
-                    children: [
-                      Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Container(
-                            width: 50,
-                            height: 50,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: LinearGradient(
-                                colors: [
-                                  Color(0xFF8D91FD),
-                                  Color(0xFF595DE5),
-                                ],
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                              ),
-                            ),
-                          ),
-                          const Icon(
-                            Icons.circle,
-                            size: 50,
-                            color: Colors.transparent,
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 0), 
-
-                      const Text(
-                        'AppName',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF595DE5),
-                        ),
-                      ),
-                    ],
+                Padding(
+                  padding: const EdgeInsets.only(top: 0),
+                  child: Image.asset(
+                    'assets/Logo.png', // Replace 'assets/logo.png' with your logo image path
+                    width: 230,
+                    height: 230,
                   ),
                 ),
+                Text(
+                  'Please enter your information.',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 16,
+                    color: Colors.grey.shade900,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
 
-                const SizedBox(height: 40),
-
+                SizedBox(height: 15),
                 MyTextField(
                   controller: fnameController,
                   hintText: 'First name',
                   obscureText: false,
                 ),
 
-                const SizedBox(height: 15),
+                SizedBox(height: 10),
 
                 MyTextField(
                   controller: lnameController,
@@ -148,7 +119,7 @@ class RegisterPage extends StatelessWidget {
                   obscureText: false,
                 ),
 
-                const SizedBox(height: 15),
+                SizedBox(height: 10),
 
                 MyTextField(
                   controller: phoneController,
@@ -156,7 +127,7 @@ class RegisterPage extends StatelessWidget {
                   obscureText: false,
                 ),
 
-                const SizedBox(height: 15),
+                SizedBox(height: 10),
 
                 MyTextField(
                   controller: emailController,
@@ -164,7 +135,7 @@ class RegisterPage extends StatelessWidget {
                   obscureText: false,
                 ),
 
-                const SizedBox(height: 15),
+                SizedBox(height: 10),
 
                 MyTextField(
                   controller: passwordController,
@@ -172,7 +143,7 @@ class RegisterPage extends StatelessWidget {
                   obscureText: true,
                 ),
 
-                const SizedBox(height: 50),
+                SizedBox(height: 30),
 
                 GestureDetector(
                   onTap: () => registerUser(context),
@@ -180,10 +151,10 @@ class RegisterPage extends StatelessWidget {
                     padding: const EdgeInsets.all(15),
                     margin: const EdgeInsets.symmetric(horizontal: 25),
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
+                      gradient: LinearGradient(
                         colors: [
-                          Color(0xFF8D91FD),
-                          Color(0xFF595DE5),
+                          Color(0xFFA67CE4), // First color
+                          Color(0xFF5915BD), // Second color
                         ],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
@@ -203,7 +174,7 @@ class RegisterPage extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(height: 15),
+                SizedBox(height: 10),
 
                 GestureDetector(
                   onTap: () => navigateToSignInPage(context),
@@ -215,12 +186,12 @@ class RegisterPage extends StatelessWidget {
                         style: TextStyle(color: Colors.grey[700]),
                       ),
 
-                      const SizedBox(width: 4),
+                      SizedBox(width: 4),
                       
-                      const Text(
+                      Text(
                         'Sign in.',
                         style: TextStyle(
-                          color: Colors.blue,
+                          color: Color(0xFF218BBC),
                           fontWeight: FontWeight.bold,
                         ),
                       ),

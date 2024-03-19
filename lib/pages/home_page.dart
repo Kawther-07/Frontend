@@ -17,7 +17,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false, // This line removes the back button
+        automaticallyImplyLeading: false,
         title: SizedBox.shrink(),
       ),
       body: Padding(
@@ -66,7 +66,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-            SizedBox(height: 20), // Adjust spacing as needed
+            SizedBox(height: 20), 
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -77,7 +77,15 @@ class _HomePageState extends State<HomePage> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(15),
-                      border: Border.all(color: Color(0xFF5915BD)), // Border color
+                      border: Border.all(color: Color(0xFF5915BD)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color(0xFF300374).withOpacity(0.5), 
+                          spreadRadius: 1,
+                          blurRadius: 3,
+                          offset: Offset(0, 2), 
+                        ),
+                      ],
                     ),
                     child: RichText(
                       text: TextSpan(
@@ -103,7 +111,15 @@ class _HomePageState extends State<HomePage> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(15),
-                      border: Border.all(color: Color(0xFF5915BD)), // Border color
+                      border: Border.all(color: Color(0xFF5915BD)), 
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color(0xFF300374).withOpacity(0.5), 
+                          spreadRadius: 1,
+                          blurRadius: 3,
+                          offset: Offset(0, 2), 
+                        ),
+                      ],
                     ),
                     child: Text(
                       'Have you taken your medications for today?',
@@ -114,59 +130,65 @@ class _HomePageState extends State<HomePage> {
                 ),
               ],
             ),
-            SizedBox(height: 20), // Adjust spacing as needed
+            SizedBox(height: 20), 
             Container(
               margin: EdgeInsets.symmetric(horizontal: 5),
-              padding: EdgeInsets.all(16),
+              padding: EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(15),
-                border: Border.all(color: Color(0xFF5915BD)), // Border color
-              boxShadow: [
-                BoxShadow(
-                  color: Color(0xFF300374).withOpacity(0.5), // Shadow color
-                  spreadRadius: 1,
-                  blurRadius: 3,
-                  offset: Offset(0, 2), // changes position of shadow
-                ),
-              ],
-            ),
+                border: Border.all(color: Color(0xFF5915BD)), 
+                boxShadow: [
+                  BoxShadow(
+                    color: Color(0xFF300374).withOpacity(0.5), 
+                    spreadRadius: 1,
+                    blurRadius: 3,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
               child: Column(
                 children: [
                   Row(
                     children: [
                       Transform.translate(
-                        offset: Offset(0, 12), // Adjust the vertical offset as needed
+                        offset: Offset(0, 12), 
                         child: Icon(Icons.calendar_today, color: Color(0xFF5915BD)),
                       ),
                       SizedBox(width: 10),
                       Text(
                         'Your next appointment:',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black),
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black),
                       ),
                     ],
                   ),
-                  SizedBox(height: 4),
+                  SizedBox(height: 0),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround, // Align the children to the center
+                    mainAxisAlignment: MainAxisAlignment.spaceAround, 
                     children: [
-                      Text(
-                        'June 17, 2024',
-                        style: TextStyle(fontSize: 14, color: Colors.black),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 25),
+                        child: Text(
+                          'June 17, 2024',
+                          style: TextStyle(fontSize: 12, color: Colors.black),
+                        ),
                       ),
-                      SizedBox(width: 8), // Adjust the space between "Date" and "Time"
-                      Text(
-                        '11:00 am',
-                        style: TextStyle(fontSize: 14, color: Colors.black),
+                      SizedBox(width: 8), 
+                      Padding(
+                        padding: const EdgeInsets.only(right: 90),
+                        child: Text(
+                          '11:00 am',
+                          style: TextStyle(fontSize: 12, color: Colors.black),
+                        ),
                       ),
                     ],
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 20), // Adjust spacing as needed
+            SizedBox(height: 20),
             Container(
-              padding: EdgeInsets.all(20),
+              padding: EdgeInsets.all(15),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
@@ -185,34 +207,56 @@ class _HomePageState extends State<HomePage> {
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 16),
                   SizedBox(
                     width: 200,
-                    height: 50, // Set the desired width
+                    height: 50, 
                     child: ElevatedButton(
                       onPressed: () {},
                       style: ElevatedButton.styleFrom(
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30), // Set button border radius
+                          borderRadius: BorderRadius.circular(30), 
                         ),
-                        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20), // Adjust padding as needed
-                        backgroundColor: Colors.white, // Set button background color to white
+                        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                        backgroundColor: Colors.white, 
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             'Take a picture',
-                            style: TextStyle(color: Color(0xFF5915BD)), // Set text color to purple
+                            style: TextStyle(color: Color(0xFF5915BD)), 
                           ),
                           Icon(
                             Icons.camera_alt,
-                            color: Color(0xFF5915BD), // Set icon color to purple
+                            color: Color(0xFF5915BD), 
                           ),
                         ],
                       ),
                     ),
                   ),
+                ],
+              ),
+            ),
+            SizedBox(height: 5), 
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 10),
+              child: Text(
+                'Learn about your condition',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Color(0xFF262626)),
+              ),
+            ),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  SizedBox(width: 10),
+                  FootConditionCard(imagePath: 'assets/ulcer1.jpg'),
+                  SizedBox(width: 10),
+                  FootConditionCard(imagePath: 'assets/ulcer1.jpg'),
+                  SizedBox(width: 10),
+                  FootConditionCard(imagePath: 'assets/ulcer1.jpg'),
+                  SizedBox(width: 10),
                 ],
               ),
             ),
@@ -256,12 +300,9 @@ class _HomePageState extends State<HomePage> {
 
       switch (index) {
         case 0:
-          // Check if already on the home page
           if (widget.patientId != null) {
-            // Do nothing if already on the home page
             return;
           } else {
-            // Navigate to the home page without replacing the route
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -271,15 +312,11 @@ class _HomePageState extends State<HomePage> {
           }
           break;
         case 1:
-          // Handle navigation to Stats page
           break;
         case 2:
-          // Handle navigation to Education page
           break;
         case 3:
-          // Check if patientId is available
           if (widget.patientId != null) {
-            // Navigate to the profile page passing patientId, currentIndex, and onItemTapped
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -291,7 +328,6 @@ class _HomePageState extends State<HomePage> {
               ),
             );
           } else {
-            // Patient ID is null
             print('Patient ID is null');
           }
           break;
@@ -299,10 +335,52 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // Callback function to handle item tap
+  void _navigateToProfilePage() {
+    if (widget.patientId != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PatientProfilePage(
+            patientId: widget.patientId!,
+            currentIndex: _selectedIndex,
+            onItemTapped: _handleItemTap,
+          ),
+        ),
+      );
+    } else {
+      print('Patient ID is null');
+    }
+  }
+
   void _handleItemTap(int index) {
     setState(() {
       _selectedIndex = index;
     });
+  }
+}
+
+class FootConditionCard extends StatelessWidget {
+  final String imagePath;
+
+  const FootConditionCard({Key? key, required this.imagePath}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 160,
+      height: 140,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: Colors.grey),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(15),
+        child: Image.asset(
+          imagePath,
+          fit: BoxFit.cover,
+        ),
+      ),
+    );
   }
 }

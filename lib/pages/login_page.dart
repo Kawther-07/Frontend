@@ -13,83 +13,64 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 class LoginPage extends StatelessWidget {
   LoginPage({Key? key}) : super(key: key);
 
-  // text editing controllers
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
   final storage = FlutterSecureStorage();
 
-  // sign user in method
-  Future<void> signInUser(BuildContext context) async {
-    final storage = FlutterSecureStorage();
 
-    try {
-      final String email = emailController.text;
-      final String password = passwordController.text;
+Future<void> signInUser(BuildContext context) async {
+  final storage = FlutterSecureStorage();
 
-      if (email.isEmpty || password.isEmpty) {
-        throw 'Please fill in both email and password fields.';
-      }
+  try {
+    final String email = emailController.text;
+    final String password = passwordController.text;
 
-      final Uri uri = Uri.parse('http://192.168.1.68:3000/api/patient/login');
-      final http.Response response = await http.post(
-        uri,
-        headers: <String, String>{
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-        }),
+    if (email.isEmpty || password.isEmpty) {
+      throw 'Please fill in both email and password fields.';
+    }
+
+    final Uri uri = Uri.parse('http://192.168.1.68:3000/api/patient/login');
+    final http.Response response = await http.post(
+      uri,
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'email': email,
+        'password': password,
+      }),
+    );
+
+    print('Response status code: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      final token = responseData['token'];
+
+      // Store the token 
+      await storage.write(key: 'token', value: token);
+
+      final decodedToken = jsonDecode(utf8.decode(base64.decode(base64.normalize(token.split('.')[1]))));
+      
+      // Extract the patientId from the decoded token
+      final patientId = decodedToken['id'];
+
+      // Navigate to the welcome page with patientId
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => HomePage(patientId: patientId),
+        ),
       );
-
-      print('Response status code: ${response.statusCode}');
-      print('Response body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-        final token = responseData['token'];
-
-        // Store the token securely
-        await storage.write(key: 'token', value: token);
-
-        final decodedToken = jsonDecode(utf8.decode(base64.decode(base64.normalize(token.split('.')[1]))));
-        final patientId = decodedToken['id'];
-
-        // Navigate to the welcome page with patientId
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => HomePage(patientId: patientId),
-          ),
-        );
-      } else {
-        print('Login failed: ${response.statusCode} - ${response.body}');
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('Error'),
-              content: Text('Failed to sign in user.'),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
-      }
-    } catch (error) {
-      print('Error during login: $error');
+    } else {
+      print('Login failed: ${response.statusCode} - ${response.body}');
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text('Error'),
-            content: Text('An error occurred.'),
+            content: Text('Failed to sign in user.'),
             actions: <Widget>[
               TextButton(
                 onPressed: () {
@@ -102,25 +83,52 @@ class LoginPage extends StatelessWidget {
         },
       );
     }
-  }
+  } catch (error) {
+    print('Error during login: $error');
+    String errorMessage = 'An error occurred.';
 
-  // navigate to register page method
+    if (error.toString().contains('Please fill in both email and password fields.')) {
+      errorMessage = 'Email or password are incorrect.';
+    }
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Error'),
+          content: Text(errorMessage),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+
+  // navigate to register page
   void navigateToRegisterPage(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => RegisterPage(), // Replace `RegisterPage` with your register page class name
+        builder: (context) => RegisterPage(), 
       ),
     );
   }
 
-  // navigate to forgot password page method
+  // navigate to forgot password page 
   void navigateToForgotPasswordPage(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => ForgotPassword(),
-      ),
-    );
-  }
+  Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (context) => ForgotPassword(),
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -131,48 +139,36 @@ class LoginPage extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 10),
+                const SizedBox(height: 0),
 
                 // Logo
                 Padding(
-                  padding: const EdgeInsets.only(top: 20),
+                  padding: const EdgeInsets.only(top: 0),
                   child: Image.asset(
-                    './lib/assets/Logo.png', // Replace 'assets/logo.png' with your logo image path
-                    width: 50,
-                    height: 50,
+                    'assets/Logo.png',
+                    width: 230,
+                    height: 230,
                   ),
                 ),
 
-                const SizedBox(height: 10),
-
-                // App Name
-                const Text(
-                  'AppName',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF5915BD),
-                  ),
-                ),
-
-                const SizedBox(height: 50),
+                const SizedBox(height: 5),
 
                 // Welcome back!
                 const Text(
                   'Welcome back!',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 20,
+                    fontSize: 22,
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 15),
 
                 // Please enter your details to sign in.
                 Text(
                   'Please enter your details to sign in.',
                   style: TextStyle(
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w500,
                     fontSize: 14,
                     color: Colors.grey.shade900,
                   ),
