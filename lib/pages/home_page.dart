@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/pages/auth_service.dart';
 import 'package:flutter_application_1/pages/components/CustomBottomNavigationBar.dart';
+import 'package:flutter_application_1/pages/education_page.dart';
+import 'package:flutter_application_1/pages/stats.dart';
 import 'patient_profile_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -257,11 +259,11 @@ class _HomePageState extends State<HomePage> {
               child: Row(
                 children: [
                   SizedBox(width: 10),
-                  FootConditionCard(imagePath: 'assets/ulcer1.jpg'),
+                  FootConditionCard(imagePath: 'assets/dfu2.png'),
                   SizedBox(width: 10),
                   FootConditionCard(imagePath: 'assets/ulcer1.jpg'),
                   SizedBox(width: 10),
-                  FootConditionCard(imagePath: 'assets/ulcer1.jpg'),
+                  FootConditionCard(imagePath: 'assets/dfu3.png'),
                   SizedBox(width: 10),
                 ],
               ),
@@ -296,9 +298,23 @@ class _HomePageState extends State<HomePage> {
           }
           break;
         case 1:
-          break;
-        case 2:
-          break;
+        // Handle navigation to the Stats page for the second icon (index 1)
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => StatsPage(),
+          ),
+        );
+        break;
+      case 2:
+        // Handle navigation to the Education page for the third icon (index 2)
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => EducationPage(),
+          ),
+        );
+        break;
         case 3:
         if (widget.patientId != null) {
           Navigator.push(

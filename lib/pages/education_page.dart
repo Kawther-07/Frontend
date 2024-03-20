@@ -31,7 +31,7 @@ class EducationPage extends StatelessWidget {
           EducationalCard(
             title: 'Diabetic foot ulcer and self-care plans',
             description: 'Discover tips and strategies to prevent DFU and maintain foot health.',
-            imageUrl: 'assets/dfu2.png', // Replace with actual image asset path
+            imageUrl: 'assets/dfu3.png', // Replace with actual image asset path
             onTap: () {
               // Handle tap action for this card
             },
