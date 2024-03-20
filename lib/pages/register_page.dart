@@ -18,7 +18,7 @@ class RegisterPage extends StatelessWidget {
   final TextEditingController passwordController = TextEditingController();
 
   Future<void> registerUser(BuildContext context) async {
-    final Uri uri = Uri.parse('http://192.168.1.68:3000/api/patient');
+    final Uri uri = Uri.parse('http://192.168.1.66:3000/api/patient');
     final Map<String, dynamic> userData = {
       'first_name': fnameController.text,
       'last_name': lnameController.text,

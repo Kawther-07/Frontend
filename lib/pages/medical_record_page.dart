@@ -30,7 +30,7 @@ class _MedicalRecordPageState extends State<MedicalRecordPage> {
     print('Fetching medical record data for patientId: ${widget.patientId}');
 
     final medicalRecordResponse = await http.get(
-      Uri.parse('http://192.168.1.68:3000/api/medical-record/${widget.patientId}'),
+      Uri.parse('http://192.168.1.66:3000/api/medical-record/${widget.patientId}'),
       headers: {
         'Authorization': 'Bearer $token',
       },

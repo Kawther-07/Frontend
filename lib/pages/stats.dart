@@ -1,57 +1,64 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:charts_flutter/flutter.dart' as charts;
-import 'patient_profile_page.dart';
-import 'components/my_button.dart';
+
+void main() {
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key});
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: DashboardPage(),
+      home: const StatsPage(),
     );
   }
 }
 
-class DashboardPage extends StatelessWidget {
-  final List<GlycemiaData> data = [
-    GlycemiaData(DateTime(2024, 2, 1), 100),
-    GlycemiaData(DateTime(2024, 2, 2), 170),
-    GlycemiaData(DateTime(2024, 2, 3), 115),
-    GlycemiaData(DateTime(2024, 2, 4), 78),
-    GlycemiaData(DateTime(2024, 2, 5), 84),
-    GlycemiaData(DateTime(2024, 2, 6), 105),
-    GlycemiaData(DateTime(2024, 2, 7), 120),
-    GlycemiaData(DateTime(2024, 2, 8), 59),
-    GlycemiaData(DateTime(2024, 2, 9), 135),
-    GlycemiaData(DateTime(2024, 2, 10), 140),
-    GlycemiaData(DateTime(2024, 2, 11), 114),
-    GlycemiaData(DateTime(2024, 2, 12), 132),
-    GlycemiaData(DateTime(2024, 2, 13), 101),
-    GlycemiaData(DateTime(2024, 2, 14), 117),
-    GlycemiaData(DateTime(2024, 2, 15), 105),
-    GlycemiaData(DateTime(2024, 2, 16), 91),
-    GlycemiaData(DateTime(2024, 2, 17), 130),
-    GlycemiaData(DateTime(2024, 2, 18), 185),
-    GlycemiaData(DateTime(2024, 2, 19), 130),
-    GlycemiaData(DateTime(2024, 2, 20), 70),
-    GlycemiaData(DateTime(2024, 2, 21), 105),
-    GlycemiaData(DateTime(2024, 2, 22), 67),
-    GlycemiaData(DateTime(2024, 2, 23), 122),
-    GlycemiaData(DateTime(2024, 2, 24), 110),
-    GlycemiaData(DateTime(2024, 2, 25), 144),
-    GlycemiaData(DateTime(2024, 2, 26), 118),
-    GlycemiaData(DateTime(2024, 2, 27), 137),
-    GlycemiaData(DateTime(2024, 2, 28), 61),
-  ];
+class StatsPage extends StatefulWidget {
+  const StatsPage({Key? key}) : super(key: key);
+
+  @override
+  _StatsPageState createState() => _StatsPageState();
+}
+
+class _StatsPageState extends State<StatsPage> {
+  late List<GlycemiaData> data = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  Future<void> fetchData() async {
+    try {
+      final Uri uri = Uri.parse('http://192.168.1.66:3000/api/glycemia/1'); // Replace '1' with the actual patient ID
+      final http.Response response = await http.get(uri);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> responseData = jsonDecode(response.body);
+        print('Response Data: $responseData');
+        setState(() {
+          data = responseData.map((data) => GlycemiaData.fromJson(data)).toList();
+        });
+      } else {
+        print('Failed to fetch glycemia data: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error fetching glycemia data: $error');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(''),
+        title: const Text('Glycemia Stats'),
       ),
       body: Center(
         child: Column(
@@ -62,18 +69,7 @@ class DashboardPage extends StatelessWidget {
               height: 250,
               child: _buildChart(),
             ),
-
             const SizedBox(height: 80),
-
-            // MyButton( 
-            //   onTap: () {
-            //     // Navigator.push(
-            //     //   context,
-            //     //   MaterialPageRoute(builder: (context) => ProfilePage()),
-            //     // );
-            //   },
-            //   text: 'Go to Profile',
-            // ),
           ],
         ),
       ),
@@ -81,21 +77,71 @@ class DashboardPage extends StatelessWidget {
   }
 
   Widget _buildChart() {
-    final seriesList = [
-      charts.Series<GlycemiaData, DateTime>(
-        id: 'Glycemia',
-        colorFn: (_, __) => charts.ColorUtil.fromDartColor(const Color(0xFF595DE5)),
-        domainFn: (GlycemiaData glycemia, _) => glycemia.date,
-        measureFn: (GlycemiaData glycemia, _) => glycemia.glycemia,
-        data: data,
-      ),
-    ];
+    if (data.isEmpty) {
+      return const CircularProgressIndicator(); // Show loading indicator while data is being fetched
+    } else {
+      final seriesList = [
+        charts.Series<GlycemiaData, DateTime>(
+          id: 'Glycemia',
+          colorFn: (_, __) => charts.ColorUtil.fromDartColor(const Color(0xFF595DE5)),
+          domainFn: (GlycemiaData glycemia, _) => glycemia.date,
+          measureFn: (GlycemiaData glycemia, _) => glycemia.glycemia,
+          data: data,
+        ),
+      ];
 
-    return charts.TimeSeriesChart(
-      seriesList,
-      animate: true,
-      dateTimeFactory: const charts.LocalDateTimeFactory(),
-    );
+      return Column(
+        children: [
+          Expanded(
+            child: charts.TimeSeriesChart(
+              seriesList,
+              animate: true,
+              dateTimeFactory: const charts.LocalDateTimeFactory(),
+              primaryMeasureAxis: const charts.NumericAxisSpec(
+                tickProviderSpec: const charts.BasicNumericTickProviderSpec(
+                  desiredTickCount: 5,
+                ),
+              ),
+              domainAxis: charts.DateTimeAxisSpec(
+                renderSpec: charts.SmallTickRendererSpec(
+                  labelStyle: charts.TextStyleSpec(
+                    color: charts.MaterialPalette.white,
+                  ),
+                  lineStyle: charts.LineStyleSpec(
+                    color: charts.MaterialPalette.white,
+                  ),
+                ),
+                tickFormatterSpec: charts.AutoDateTimeTickFormatterSpec(
+                  day: charts.TimeFormatterSpec(
+                    format: 'd',
+                    transitionFormat: 'MMM d',
+                  ),
+                  hour: charts.TimeFormatterSpec(
+                    format: 'HH:mm',
+                    transitionFormat: 'MMM d HH:mm',
+                  ),
+                ),
+              ),
+              behaviors: [
+                charts.ChartTitle(
+                  'Glycemia Stats',
+                  subTitle: 'Date',
+                  behaviorPosition: charts.BehaviorPosition.top,
+                  titleStyleSpec: charts.TextStyleSpec(
+                    color: charts.MaterialPalette.white,
+                    fontSize: 16,
+                  ),
+                  subTitleStyleSpec: charts.TextStyleSpec(
+                    color: charts.MaterialPalette.white,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
   }
 }
 
@@ -105,20 +151,8 @@ class GlycemiaData {
 
   GlycemiaData(this.date, this.glycemia);
 
+  factory GlycemiaData.fromJson(Map<String, dynamic> json) {
+    String dateString = json['createdAtFormatted'].replaceAll(' PM', '').replaceAll('T', ' ');
+    return GlycemiaData(DateTime.parse(dateString), json['rate'].toDouble());
+  }
 }
-
-
-// class ProfilePage extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('Profile'),
-//       ),
-//       body: const Center(
-//         child: Text('Profile Page'),
-//       ),
-//     );
-//   }
-// }
-
