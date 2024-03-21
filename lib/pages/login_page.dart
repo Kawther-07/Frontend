@@ -70,7 +70,7 @@ Future<void> signInUser(BuildContext context) async {
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text('Error'),
-            content: Text('Failed to sign in user.'),
+            content: Text('Email or password are incorrect.'),
             actions: <Widget>[
               TextButton(
                 onPressed: () {
@@ -88,7 +88,7 @@ Future<void> signInUser(BuildContext context) async {
     String errorMessage = 'An error occurred.';
 
     if (error.toString().contains('Please fill in both email and password fields.')) {
-      errorMessage = 'Email or password are incorrect.';
+      errorMessage = 'Please fill in both email and password fields.';
     }
 
     showDialog(

@@ -291,29 +291,42 @@ class PersonalProfilePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (profileData != null) ...[
-              Text(
-                'Gender: ${profileData!['gender']}',
-                style: TextStyle(fontSize: 18),
+              _buildProfileField(
+                label: 'Gender',
+                value: '${profileData!['gender']}',
+                icon: Icons.edit,
+                onPressed: () {
+                  // Handle edit action
+                },
               ),
-              SizedBox(height: 10),
-              Text(
-                'Height: ${profileData!['height']}',
-                style: TextStyle(fontSize: 18),
+              _buildProfileField(
+                label: 'Height',
+                value: '${profileData!['height']}',
+                icon: Icons.edit,
+                onPressed: () {
+                  // Handle edit action
+                },
               ),
-              SizedBox(height: 10),
-              Text(
-                'Weight: ${profileData!['weight']}',
-                style: TextStyle(fontSize: 18),
+              _buildProfileField(
+                label: 'Weight',
+                value: '${profileData!['weight']}',
+                icon: Icons.edit,
+                onPressed: () {
+                  // Handle edit action
+                },
               ),
-              SizedBox(height: 10),
-              Text(
-                'Birth Date: ${profileData!['birth_date']}',
-                style: TextStyle(fontSize: 18),
+              _buildProfileField(
+                label: 'Birth Date',
+                value: '${profileData!['birth_date']}',
+                icon: Icons.edit,
+                onPressed: () {
+                  // Handle edit action
+                },
               ),
             ] else ...[
-              CircularProgressIndicator(),
-              SizedBox(height: 10),
-              Text(
+              const CircularProgressIndicator(),
+              const SizedBox(height: 10),
+              const Text(
                 'Profile data is loading...',
                 style: TextStyle(fontSize: 18),
               ),
@@ -323,7 +336,42 @@ class PersonalProfilePage extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildProfileField({
+  required String label,
+  required String value,
+  required IconData icon,
+  required VoidCallback onPressed,
+}) {
+  return Padding(
+    padding: const EdgeInsets.only(left: 18.0), 
+    child: ListTile(
+      title: Text(
+        label,
+        style: const TextStyle(fontSize: 18, color: Color(0xFF5915BD)),
+      ),
+      subtitle: Container(
+        height: 50, // Set a fixed height for the TextFormField
+        child: TextFormField(
+          initialValue: value,
+          readOnly: false,
+          style: const TextStyle(fontSize: 18, color: Color(0xFF505050)), 
+        ),
+      ),
+      trailing: IconButton(
+        icon: Icon(
+          icon,
+          color: Color(0xFF5915BD), 
+        ),
+        onPressed: onPressed,
+      ),
+    ),
+  );
 }
+
+
+}
+
 
 // Medical Record Page
 class MedicalRecordPage extends StatelessWidget {

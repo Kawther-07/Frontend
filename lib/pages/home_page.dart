@@ -3,12 +3,21 @@ import 'package:flutter_application_1/pages/auth_service.dart';
 import 'package:flutter_application_1/pages/components/CustomBottomNavigationBar.dart';
 import 'package:flutter_application_1/pages/education_page.dart';
 import 'package:flutter_application_1/pages/stats.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'patient_profile_page.dart';
+import 'dart:convert';
+
+// import 'camera_screen.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class HomePage extends StatefulWidget {
   final int? patientId;
+  final String? userName;
 
-  HomePage({Key? key, this.patientId}) : super(key: key);
+  HomePage({Key? key, this.patientId, this.userName}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -16,6 +25,62 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
+  String _userName = '';
+  
+
+   @override
+  void initState() {
+    super.initState();
+    fetchUserName();
+  }
+
+Future<void> fetchUserName() async {
+  try {
+    final Uri uri = Uri.parse('http://192.168.1.66:3000/api/patient/name/${widget.patientId}');
+    final http.Response response = await http.get(uri);
+
+    print('Response status code: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      final name = responseData['patientName']; // Use the correct key 'patientName'
+
+      if (name != null && name.isNotEmpty) {
+        setState(() {
+          _userName = name;
+        });
+      } else {
+        print('User name is null or empty');
+      }
+    } else {
+      print('Failed to fetch user name: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Error fetching user name: $e');
+  }
+}
+
+ Future<void> _takePicture() async {
+    final imagePicker = ImagePicker();
+    try {
+      final pickedFile = await imagePicker.getImage(source: ImageSource.camera);
+      if (pickedFile != null) {
+        // Do something with the captured image
+        // For example, you can display it in a new screen
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DisplayPictureScreen(imagePath: pickedFile.path),
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error taking picture: $e');
+      // Handle error
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -46,28 +111,26 @@ class _HomePageState extends State<HomePage> {
               ),
               child: Center(
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.person, color: Colors.white),
+                          SizedBox(width: 10),
+                          Text(
+                            _userName.isNotEmpty ? ' $_userName' : '',
+                            style: TextStyle(fontSize: 15, color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ),
                     IconButton(
                       icon: Icon(Icons.logout, color: Colors.white),
                       onPressed: () {
                         // Call the logout method from the AuthService class
                         AuthService.logout(context);
-                      },
-                    ),
-                    Row(
-                      children: [
-                        Icon(Icons.person, color: Colors.white),
-                        SizedBox(width: 10),
-                        Text(
-                          'User Name',
-                          style: TextStyle(fontSize: 18, color: Colors.white),
-                        ),
-                      ],
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.settings, color: Colors.white),
-                      onPressed: () {
                       },
                     ),
                   ],
@@ -209,42 +272,43 @@ class _HomePageState extends State<HomePage> {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Column(
-                children: [
-                  Text(
-                    'Do you want to check your foot condition?',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                  ),
-                  SizedBox(height: 16),
-                  SizedBox(
-                    width: 200,
-                    height: 50, 
-                    child: ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30), 
-                        ),
-                        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                        backgroundColor: Colors.white, 
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Take a picture',
-                            style: TextStyle(color: Color(0xFF5915BD)), 
-                          ),
-                          Icon(
-                            Icons.camera_alt,
-                            color: Color(0xFF5915BD), 
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+  children: [
+    Text(
+      'Do you want to check your foot condition?',
+      textAlign: TextAlign.center,
+      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+    ),
+    SizedBox(height: 16),
+    SizedBox(
+      width: 200,
+      height: 50, 
+      child: ElevatedButton(
+        onPressed: _takePicture,
+
+        style: ElevatedButton.styleFrom(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30), 
+          ),
+          padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+          backgroundColor: Colors.white, 
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Take a picture',
+              style: TextStyle(color: Color(0xFF5915BD)), 
+            ),
+            Icon(
+              Icons.camera_alt,
+              color: Color(0xFF5915BD), 
+            ),
+          ],
+        ),
+      ),
+    ),
+  ],
+),
             ),
             SizedBox(height: 5), 
             Padding(
@@ -361,6 +425,25 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _selectedIndex = index;
     });
+  }
+}
+
+class DisplayPictureScreen extends StatelessWidget {
+  final String imagePath;
+
+  const DisplayPictureScreen({Key? key, required this.imagePath}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Display Picture'),
+      ),
+      body: Image.file(
+        File(imagePath),
+        fit: BoxFit.cover,
+      ),
+    );
   }
 }
 

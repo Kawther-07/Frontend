@@ -47,6 +47,7 @@ class _MedicalRecordPageState extends State<MedicalRecordPage> {
         medicalRecordData = fetchedMedicalRecordData['medical-record'];
       });
     } else {
+      print('Failed to fetch medical record: ${medicalRecordResponse.statusCode}');
       throw Exception('Failed to fetch medical record: ${medicalRecordResponse.statusCode}');
     }
   } catch (error) {
@@ -62,34 +63,38 @@ class _MedicalRecordPageState extends State<MedicalRecordPage> {
       ),
       body: Center(
         child: medicalRecordData != null
-            ? Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Diabetes Type: ${medicalRecordData!['diabetesType']}',
+            ? medicalRecordData!.isEmpty
+                ? Text(
+                    'Medical record data is empty.',
                     style: TextStyle(fontSize: 18),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Has DFU: ${medicalRecordData!['hasDFU']}',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Is Smoker: ${medicalRecordData!['isSmoker']}',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Diabetes Date: ${medicalRecordData!['hadDiabetes']}',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                  Text(
-                    'Blood group: ${medicalRecordData!['bloodGroup']}',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                ],
-              )
+                  )
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Diabetes Type: ${medicalRecordData!['diabetesType']}',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        'Has DFU: ${medicalRecordData!['hasDFU']}',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                      Text(
+                        'Is Smoker: ${medicalRecordData!['isSmoker']}',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        'Diabetes Date: ${medicalRecordData!['hadDiabetes']}',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                      Text(
+                        'Blood group: ${medicalRecordData!['bloodGroup']}',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                    ],
+                  )
             : CircularProgressIndicator(),
       ),
     );
