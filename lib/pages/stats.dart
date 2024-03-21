@@ -58,8 +58,26 @@ class _StatsPageState extends State<StatsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Glycemia Stats'),
+        title: const Text(
+          'Glycemia Stats',
+        style: TextStyle(color: Colors.white), // Set the text color of the app bar title here
       ),
+      flexibleSpace: Container(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [
+              Color(0xFFA67CE4), // First color
+              Color(0xFF5915BD), // Second color
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+      ),
+      iconTheme: IconThemeData(
+        color: Colors.white, // Set the color of the back arrow here
+      ),
+    ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

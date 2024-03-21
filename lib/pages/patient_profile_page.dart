@@ -97,11 +97,30 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
 }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('More'),
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: Text(
+        'More',
+        style: TextStyle(color: Colors.white), // Set the text color of the app bar title here
       ),
+      flexibleSpace: Container(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [
+              Color(0xFFA67CE4), // First color
+              Color(0xFF5915BD), // Second color
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+      ),
+      iconTheme: IconThemeData(
+        color: Colors.white, // Set the color of the back arrow here
+      ),
+    ),
+      // backgroundColor: Color(0xFFF9F6EE),
       body: SingleChildScrollView(
         padding: EdgeInsets.only(top: 50), 
         child: Center(
@@ -143,7 +162,7 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => DFURecordPage(),
+                      builder: (context) => DFURecordPage(imagePath: '',),
                     ),
                   );
                 },
