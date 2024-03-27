@@ -30,7 +30,7 @@ Future<void> signInUser(BuildContext context) async {
       throw 'Please fill in both email and password fields.';
     }
 
-    final Uri uri = Uri.parse('http://192.168.1.66:3000/api/patient/login');
+    final Uri uri = Uri.parse('http://192.168.1.68:8000/api/patient/login');
     final http.Response response = await http.post(
       uri,
       headers: <String, String>{

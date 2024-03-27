@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/pages/components/my_texfield.dart'; 
 import 'package:flutter_application_1/pages/home_page.dart';
+import 'package:flutter_application_1/pages/profile_info_page.dart';
 import 'package:http/http.dart' as http;
 import 'login_page.dart';
 import 'home_page.dart';
@@ -18,55 +19,62 @@ class RegisterPage extends StatelessWidget {
   final TextEditingController passwordController = TextEditingController();
 
   Future<void> registerUser(BuildContext context) async {
-    final Uri uri = Uri.parse('http://192.168.1.66:3000/api/patient');
-    final Map<String, dynamic> userData = {
-      'first_name': fnameController.text,
-      'last_name': lnameController.text,
-      'phone': phoneController.text,
-      'email': emailController.text,
-      'password': passwordController.text,
-    };
+  final Uri uri = Uri.parse('http://192.168.1.68:8000/api/patient');
+  final Map<String, dynamic> userData = {
+    'first_name': fnameController.text,
+    'last_name': lnameController.text,
+    'phone': phoneController.text,
+    'email': emailController.text,
+    'password': passwordController.text,
+  };
 
-    try {
-      final http.Response response = await http.post(
-        uri,
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(userData),
+  try {
+    final http.Response response = await http.post(
+      uri,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(userData),
+    );
+
+    if (response.statusCode == 200) {
+      // Registration successful, extract patientId from response
+      final Map<String, dynamic> responseData = jsonDecode(response.body);
+      print('Response Data: $responseData');
+      final int patientId = responseData['id']; // Update this key
+
+  // Navigate to ProfileInfoPage and pass patientId as a parameter
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => HomePage(),
+        ),
       );
-
-      if (response.statusCode == 200) {
-        // Registration successful, navigate to the next page
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => HomePage(), // Navigate to NextPage2 after registration
-          ),
-        );
-      } else {
-        // Registration failed, display error message
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Error'),
-              content: const Text('Failed to register user.'),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
-      }
-    } catch (e) {
-      print('Error: $e');
+    } else {
+      // Registration failed, display error message
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Error'),
+            content: const Text('Failed to register user.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
     }
+  } catch (e) {
+    print('Error: $e');
   }
+}
+
 
   // navigate to sign-in page method
   void navigateToSignInPage(BuildContext context) {
