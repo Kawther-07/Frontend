@@ -7,7 +7,7 @@ class ProfileService {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     final response = await http.get(
-      Uri.parse('http://192.168.1.66:3000/api/patient/profile'),
+      Uri.parse('http://192.168.1.68:8000/api/patient/profile'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',

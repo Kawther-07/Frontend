@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage> {
 
 Future<void> fetchUserName() async {
   try {
-    final Uri uri = Uri.parse('http://192.168.1.66:3000/api/patient/name/${widget.patientId}');
+    final Uri uri = Uri.parse('http://192.168.1.68:8000/api/patient/name/${widget.patientId}');
     final http.Response response = await http.get(uri);
 
     print('Response status code: ${response.statusCode}');
@@ -385,11 +385,11 @@ Widget build(BuildContext context) {
         case 1:
         // Handle navigation to the Stats page for the second icon (index 1)
         Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => StatsPage(),
-          ),
-        );
+  context,
+  MaterialPageRoute(
+    builder: (context) => StatsPage(patientId: widget.patientId!),
+  ),
+);;
         break;
       case 2:
         // Handle navigation to the Education page for the third icon (index 2)

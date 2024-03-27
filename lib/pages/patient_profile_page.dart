@@ -6,6 +6,7 @@ import 'package:flutter_application_1/pages/stats.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:intl/intl.dart';
 
 class PatientProfilePage extends StatefulWidget {
   final int patientId;
@@ -45,12 +46,12 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
       final token = await storage.read(key: 'token');
 
       final profileResponse = await http.get(
-        Uri.parse('http://192.168.1.66:3000/api/patient/profile/${widget.patientId}'),
+        Uri.parse('http://192.168.1.68:8000/api/patient/profile/${widget.patientId}'),
         headers: {
           'Authorization': 'Bearer $token',
         },
       );
-
+      print('token $token');
       if (profileResponse.statusCode == 200) {
         final fetchedProfileData = jsonDecode(profileResponse.body);
         setState(() {
@@ -70,7 +71,7 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
     final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
     final medicalRecordResponse = await http.get(
-      Uri.parse('http://192.168.1.66:3000/api/medical-record/${widget.patientId}'),
+      Uri.parse('http://192.168.1.68:8000/api/medical-record/${widget.patientId}'),
       headers: {
         'Authorization': 'Bearer $token',
       },
@@ -135,7 +136,10 @@ Widget build(BuildContext context) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => PersonalProfilePage(profileData: profileData),
+                      builder: (context) => PersonalProfilePage(
+                        profileData: profileData,
+                        patientId: widget.patientId,
+                      ),
                     ),
                   );
                 },
@@ -175,7 +179,7 @@ Widget build(BuildContext context) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => StatsPage(),
+                      builder: (context) => StatsPage(patientId: widget.patientId),
                     ),
                   );
                 },
@@ -293,68 +297,294 @@ Widget buildButton({required int index, required IconData icon, required String 
   }
 }
 
-// Personal Profile Page
-class PersonalProfilePage extends StatelessWidget {
-  final Map<String, dynamic>? profileData;
 
-  PersonalProfilePage({Key? key, required this.profileData}) : super(key: key);
+// I CHANGED THIS ----------------------------------------------------------------------------------------------------------
+// Personal Profile Page
+class PersonalProfilePage extends StatefulWidget {
+  final Map<String, dynamic>? profileData;
+  final int patientId;
+
+  PersonalProfilePage({Key? key, required this.profileData, required this.patientId}) : super(key: key);
+
+  @override
+  _PersonalProfilePageState createState() => _PersonalProfilePageState();
+}
+
+class _PersonalProfilePageState extends State<PersonalProfilePage> {
+  final _formKey = GlobalKey<FormState>();
+  late double height;
+  late double weight;
+  late DateTime? birthDate;
+
+  String? gender;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize birthDate from profileData if available
+    if (widget.profileData != null && widget.profileData!['birth_date'] != null) {
+      birthDate = DateTime.parse(widget.profileData!['birth_date']);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Personal Profile'),
+        title: Text(
+          'Personal Profile',
+          style: TextStyle(color: Colors.white),
+        ),
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [
+                Color(0xFFA67CE4),
+                Color(0xFF5915BD),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+        ),
+        iconTheme: IconThemeData(
+          color: Colors.white,
+        ),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (profileData != null) ...[
-              _buildProfileField(
-                label: 'Gender',
-                value: '${profileData!['gender']}',
-                icon: Icons.edit,
-                onPressed: () {
-                  // Handle edit action
-                },
-              ),
-              _buildProfileField(
-                label: 'Height',
-                value: '${profileData!['height']}',
-                icon: Icons.edit,
-                onPressed: () {
-                  // Handle edit action
-                },
-              ),
-              _buildProfileField(
-                label: 'Weight',
-                value: '${profileData!['weight']}',
-                icon: Icons.edit,
-                onPressed: () {
-                  // Handle edit action
-                },
-              ),
-              _buildProfileField(
-                label: 'Birth Date',
-                value: '${profileData!['birth_date']}',
-                icon: Icons.edit,
-                onPressed: () {
-                  // Handle edit action
-                },
-              ),
-            ] else ...[
-              const CircularProgressIndicator(),
-              const SizedBox(height: 10),
-              const Text(
-                'Profile data is loading...',
-                style: TextStyle(fontSize: 18),
-              ),
-            ],
-          ],
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              children: [
+                TextFormField(
+                  initialValue: widget.profileData?['gender'] ?? '',
+                  decoration: InputDecoration(labelText: 'Gender'),
+                  onChanged: (value) {
+                    setState(() {
+                      gender = value;
+                    });
+                  },
+                ),
+                TextFormField(
+                  initialValue: widget.profileData?['height'] != null
+                      ? widget.profileData!['height'].toString()
+                      : '',
+                  decoration: InputDecoration(labelText: 'Height'),
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter height';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) => height = double.parse(value!),
+                ),
+                TextFormField(
+                  initialValue: widget.profileData?['weight'] != null
+                      ? widget.profileData!['weight'].toString()
+                      : '',
+                  decoration: InputDecoration(labelText: 'Weight'),
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter weight';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) => weight = double.parse(value!),
+                ),
+                TextFormField(
+                  controller: TextEditingController(
+                    text: birthDate != null ? DateFormat('yyyy-MM-dd').format(birthDate!) : '',
+                  ),
+                  decoration: InputDecoration(labelText: 'Birth Date'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter birth date';
+                    }
+                    return null;
+                  },
+                  onTap: () async {
+                    DateTime? pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: birthDate ?? DateTime.now(),
+                      firstDate: DateTime(1900),
+                      lastDate: DateTime.now(),
+                    );
+                    if (pickedDate != null) {
+                      setState(() {
+                        birthDate = pickedDate;
+                      });
+                    }
+                  },
+                  readOnly: true,
+                ),
+                SizedBox(height: 50),
+                Stack(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        if (_formKey.currentState!.validate()) {
+                          _formKey.currentState!.save();
+                          // Check if the profile already exists (profileData is not null)
+                          if (widget.profileData != null) {
+                            // If the profile already exists, call updateProfileData
+                            _updateProfileData();
+                          } else {
+                            // If the profile doesn't exist, call saveProfileData
+                            _saveProfileData();
+                          }
+                        }
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 100),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [
+                              Color(0xFFA67CE4),
+                              Color(0xFF5915BD),
+                            ],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          ),
+                          borderRadius: BorderRadius.circular(8), // Adjust the radius as needed
+                        ),
+                        child: Text(
+                          'Save',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
+
+  void _saveProfileData() async {
+    // Retrieve the patient's ID from the profile data
+    final int patientId = widget.patientId;
+    print('Patient ID: $patientId');
+    // Check if patientId is null
+    if (patientId == null) {
+      print('Error: Patient ID is null');
+      return; // or handle the error in another way
+    }
+
+  // Validate gender field
+      if (gender == null || gender!.isEmpty) {
+        print('Error: Gender is required');
+        return;
+      }
+
+    // Construct the body of the POST request
+    final Map<String, dynamic> requestBody = {
+      'patientId': patientId,
+      'gender': gender,
+      'height': height,
+      'weight': weight,
+      'birth_date': birthDate?.toIso8601String(),
+    };
+
+    print('Request Body: $requestBody');
+    // Encode the request body to JSON
+    final String jsonBody = jsonEncode(requestBody);
+    print('JSON Body: $jsonBody');
+
+    // Define the URI for the API endpoint
+    final Uri uri = Uri.parse('http://192.168.1.68:8000/api/patient/profile');
+    print('Request URI: $uri');
+    try {
+      // Send the POST request
+      final http.Response response = await http.post(
+        uri,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonBody,
+      );
+
+      // Check if the request was successful
+      if (response.statusCode == 200) {
+        // Handle successful response
+        print('Profile data saved successfully!');
+      } else {
+        // Handle error response
+        print('Failed to save profile data: ${response.statusCode}');
+      }
+    } catch (error) {
+      // Handle network errors
+      print('Error sending request: $error');
+    }
+  }
+
+
+  void _updateProfileData() async {
+    final int patientId = widget.patientId;
+
+    // Ensure patientId is valid (not null)
+    if (patientId == null) {
+      print('Error: Invalid patient ID');
+      return;
+    }
+
+    // Construct the request body
+    final Map<String, dynamic> requestBody = {
+      'patientId': patientId,
+    };
+
+    // Add non-empty fields to the request body
+    if (gender != null && gender!.isNotEmpty) {
+      requestBody['gender'] = gender;
+    }
+    if (height != null) {
+      requestBody['height'] = height;
+    }
+    if (weight != null) {
+      requestBody['weight'] = weight;
+    }
+    if (birthDate != null) {
+      requestBody['birth_date'] = birthDate!.toIso8601String();
+    }
+
+    // Convert the request body to JSON
+    final String jsonBody = jsonEncode(requestBody);
+    print('PATCH Request Body: $jsonBody');
+    // Define the request URI
+    final Uri uri = Uri.parse('http://192.168.1.68:8000/api/patient/updateprofile/$patientId');
+
+    try {
+      // Send the PATCH request
+      final http.Response response = await http.patch(
+        uri,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonBody,
+      );
+
+      // Handle the response
+      if (response.statusCode == 200) {
+        print('Profile data updated successfully!');
+      } else {
+        print('Failed to update profile data: ${response.statusCode}');
+      }
+    } catch (error) {
+      // Handle errors
+      print('Error sending request: $error');
+    }
+  }
+}
 
   Widget _buildProfileField({
   required String label,
@@ -370,26 +600,29 @@ class PersonalProfilePage extends StatelessWidget {
         style: const TextStyle(fontSize: 18, color: Color(0xFF5915BD)),
       ),
       subtitle: Container(
-        height: 50, // Set a fixed height for the TextFormField
+        height: 35, // Set a fixed height for the TextFormField
         child: TextFormField(
           initialValue: value,
-          readOnly: false,
-          style: const TextStyle(fontSize: 18, color: Color(0xFF505050)), 
+          readOnly: label != 'Birth Date', // Make birth date field readOnly
+          style: const TextStyle(fontSize: 18, color: Color(0xFF505050)),
+          onTap: label == 'Birth Date' ? onPressed : null, // Show date picker only for birth date field
         ),
       ),
-      trailing: IconButton(
+      trailing: label == 'Birth Date' ? IconButton(
         icon: Icon(
           icon,
-          color: Color(0xFF5915BD), 
+          color: Color(0xFF5915BD),
         ),
         onPressed: onPressed,
-      ),
+      ) : null,
     ),
   );
 }
 
 
-}
+
+
+
 
 
 // Medical Record Page
@@ -402,8 +635,26 @@ class MedicalRecordPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Medical Record'),
+        title: Text(
+          'Medical Record',
+          style: TextStyle(color: Colors.white), // Set the text color of the app bar title here
       ),
+      flexibleSpace: Container(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [
+              Color(0xFFA67CE4), // First color
+              Color(0xFF5915BD), // Second color
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+      ),
+      iconTheme: IconThemeData(
+        color: Colors.white, // Set the color of the back arrow here
+      ),
+    ),
       body: Center(
         child: medicalRecordData != null
             ? medicalRecordData!.isEmpty
@@ -414,31 +665,110 @@ class MedicalRecordPage extends StatelessWidget {
                 : Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        'Diabetes Type: ${medicalRecordData!['diabetesType']}',
-                        style: TextStyle(fontSize: 18),
+                      _buildMedicalRecordField(
+                        label: 'Diabetes Type',
+                        value: '${medicalRecordData!['diabetesType']}',
+                        icon: Icons.edit,
+                        onPressed: () {
+                          // Handle edit action
+                        },
                       ),
-                      SizedBox(height: 10),
-                      Text(
-                        'Has DFU: ${medicalRecordData!['hasDFU']}',
-                        style: TextStyle(fontSize: 18),
+                      _buildMedicalRecordField(
+                        label: 'Has DFU',
+                        value: '${medicalRecordData!['hasDFU']}',
+                        icon: Icons.edit,
+                        onPressed: () {
+                          // Handle edit action
+                        },
                       ),
-                      Text(
-                        'Is Smoker: ${medicalRecordData!['isSmoker']}',
-                        style: TextStyle(fontSize: 18),
+                      _buildMedicalRecordField(
+                        label: 'Is Smoker',
+                        value: '${medicalRecordData!['isSmoker']}',
+                        icon: Icons.edit,
+                        onPressed: () {
+                          // Handle edit action
+                        },
                       ),
-                      SizedBox(height: 10),
-                      Text(
-                        'Diabetes Date: ${medicalRecordData!['hadDiabetes']}',
-                        style: TextStyle(fontSize: 18),
+                      _buildMedicalRecordField(
+                        label: 'Diabetes Date',
+                        value: '${medicalRecordData!['hadDiabetes']}',
+                        icon: Icons.edit,
+                        onPressed: () {
+                          // Handle edit action
+                        },
                       ),
-                      Text(
-                        'Blood group: ${medicalRecordData!['bloodGroup']}',
-                        style: TextStyle(fontSize: 18),
+                      _buildMedicalRecordField(
+                        label: 'Blood group',
+                        value: '${medicalRecordData!['bloodGroup']}',
+                        icon: Icons.edit,
+                        onPressed: () {
+                          // Handle edit action
+                        },
                       ),
+                      SizedBox(height: 25), // Add spacing between the last field and the button
+                      GestureDetector(
+                  onTap: () => (),
+                  child: Container(
+                    padding: const EdgeInsets.all(15),
+                    margin: const EdgeInsets.symmetric(horizontal: 85),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Color(0xFFA67CE4), // First color
+                          Color(0xFF5915BD), // Second color
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        "Save",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
                     ],
                   )
             : CircularProgressIndicator(),
+      ),
+    );
+  }
+
+  Widget _buildMedicalRecordField({
+    required String label,
+    required String value,
+    required IconData icon,
+    required VoidCallback onPressed,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 18.0), 
+      child: ListTile(
+        title: Text(
+          label,
+          style: const TextStyle(fontSize: 18, color: Color(0xFF5915BD)),
+        ),
+        subtitle: Container(
+          height: 27, // Set a fixed height for the TextFormField
+          child: TextFormField(
+            initialValue: value,
+            readOnly: false,
+            style: const TextStyle(fontSize: 18, color: Color(0xFF505050)), 
+          ),
+        ),
+        trailing: IconButton(
+          icon: Icon(
+            icon,
+            color: Color(0xFF5915BD), 
+          ),
+          onPressed: onPressed,
+        ),
       ),
     );
   }

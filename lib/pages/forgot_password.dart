@@ -22,7 +22,7 @@ class ForgotPassword extends StatelessWidget {
     // Store the email in PasswordResetManager
     PasswordResetManager.userEmail = email;
 
-    final Uri uri = Uri.parse('http://192.168.1.66:3000/api/forgot-password');
+    final Uri uri = Uri.parse('http://192.168.1.68:3000/api/forgot-password');
     final http.Response response = await http.post(
       uri,
       headers: <String, String>{
