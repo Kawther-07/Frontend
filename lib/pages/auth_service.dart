@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
@@ -26,7 +25,7 @@ class AuthService {
         final responseData = jsonDecode(loginResponse.body);
         final token = responseData['token'];
 
-        // Make another request to fetch profile information
+        // Request to fetch profile information
         final Uri profileUri = Uri.parse('http://192.168.1.68:8000/api/patient/profile');
         final http.Response profileResponse = await http.get(
           profileUri,
@@ -63,20 +62,18 @@ class AuthService {
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
-                    child: Text('OK'),
+                    child: const Text('OK'),
                   ),
                 ],
               );
             },
           );
         } else {
-          // Handle profile request failure
         }
       } else {
-        // Handle login failure
       }
+    // ignore: empty_catches
     } catch (e) {
-      // Handle exceptions
     }
   }
 
@@ -117,10 +114,7 @@ class AuthService {
         print("Logout failed.");
       }
     } catch (e) {
-      // Handle exceptions
       print('Error during logout: $e');
     }
   }
-
-  
 }

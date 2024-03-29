@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'display_picture_screen.dart'; // Import the DisplayPictureScreen
+import 'display_picture_screen.dart'; 
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -20,7 +20,6 @@ class CameraScreen extends StatelessWidget {
         // Send the image data to your backend server
         await sendImageDataToBackend(base64Image);
 
-        // Navigate to the display picture screen
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -37,7 +36,7 @@ class CameraScreen extends StatelessWidget {
   Future<void> sendImageDataToBackend(String base64Image) async {
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.1.68:8000/api/dfu-record'), // Replace with your backend endpoint
+        Uri.parse('http://192.168.1.68:8000/api/dfu-record'), 
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

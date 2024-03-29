@@ -18,7 +18,7 @@ Future<void> resetPassword(BuildContext context) async {
   final String? email = PasswordResetManager.userEmail;
 
   if (email != null) {
-    final Uri uri = Uri.parse('http://192.168.1.68:3000/api/reset-password');
+    final Uri uri = Uri.parse('http://192.168.1.68:8000/api/reset-password');
     final http.Response response = await http.post(
       uri,
       headers: <String, String>{
@@ -31,42 +31,67 @@ Future<void> resetPassword(BuildContext context) async {
     print('Response body: ${response.body}');
 
     if (response.statusCode == 200) {
-      try {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
-        final int patientId = responseBody['id'];
-        print('Patient ID after password reset: $patientId');
+      final dynamic responseBody = jsonDecode(response.body);
 
-        // Show a pop-up message indicating that the password is updated
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('Success'),
-              content: Text('Your password has been updated.'),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => HomePage(patientId: patientId)), // Pass patientId to HomePage
-                    );
-                  },
-                  child: Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
-      } catch (e) {
-        print('Error parsing response body: $e');
-        // Handle error parsing response body
+      if (responseBody != null && responseBody['success'] == true) {
+        // Password reset successful
+        print('Password reset successful');
+
+        final int? patientId = responseBody['id'];
+        if (patientId != null) {
+          // Show a pop-up message indicating that the password is updated
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Success'),
+                content: Text('Your password has been updated.'),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => HomePage(patientId: patientId)), // Pass patientId to HomePage
+                      );
+                    },
+                    child: Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+        } else {
+          // Handle missing patientId
+          print('Missing patientId in response');
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Error'),
+                content: Text('Failed to retrieve patient ID after password reset.'),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+        }
+      } else {
+        // Password reset failed
+        final String errorMessage = responseBody != null ? responseBody['message'] : 'Unknown error';
+        print('Password reset failed: $errorMessage');
         showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
               title: Text('Error'),
-              content: Text('Failed to parse response after password reset.'),
+              content: Text('Failed to reset password: $errorMessage'),
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
@@ -120,6 +145,7 @@ Future<void> resetPassword(BuildContext context) async {
     );
   }
 }
+
 
 
   @override

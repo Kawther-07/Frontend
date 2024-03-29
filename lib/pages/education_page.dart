@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 
 class EducationPage extends StatelessWidget {
+  const EducationPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Education',
         style: TextStyle(color: Colors.white),
       ),
       flexibleSpace: Container(
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
             colors: [
               Color(0xFFA67CE4), 
               Color(0xFF5915BD), 
@@ -21,12 +23,12 @@ class EducationPage extends StatelessWidget {
           ),
         ),
       ),
-      iconTheme: IconThemeData(
+      iconTheme: const IconThemeData(
         color: Colors.white, 
       ),
     ),
       body: ListView(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         children: [
           EducationalCard(
             title: 'What is Diabetic Foot Ulcer?',
@@ -36,7 +38,7 @@ class EducationPage extends StatelessWidget {
               
             },
           ),
-          SizedBox(height: 16.0),
+          const SizedBox(height: 16.0),
           EducationalCard(
             title: 'Preventing Diabetic Foot Ulcer',
             description: 'Discover tips and strategies to prevent DFU and maintain foot health.',
@@ -45,7 +47,7 @@ class EducationPage extends StatelessWidget {
               
             },
           ),
-          SizedBox(height: 16.0),
+          const SizedBox(height: 16.0),
           EducationalCard(
             title: 'Diabetic foot ulcer and self-care plans',
             description: 'Discover tips and strategies to prevent DFU and maintain foot health.',

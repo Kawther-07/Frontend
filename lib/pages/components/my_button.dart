@@ -17,8 +17,8 @@ class MyButton extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: const LinearGradient(
             colors: [
-              Color(0xFFA67CE4), // First color
-              Color(0xFF5915BD), // Second color
+              Color(0xFFA67CE4), 
+              Color(0xFF5915BD), 
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,

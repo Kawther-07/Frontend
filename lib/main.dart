@@ -17,15 +17,15 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/', // Set the initial route
+      initialRoute: '/', 
       routes: {
-        '/': (context) => SplashScreen(), // Define the welcome page route
-        '/login': (context) => LoginPage(), // Define the login page route
-        '/register': (context) => RegisterPage(), // Define the register page route
-        // '/stats': (context) => StatsPage(), // Define the stats page route
-        '/home': (context) => HomePage(), // Define the home page route
-        '/education': (context) => EducationPage(), // Define the home page route
-        // '/profile': (context) => PatientProfilePage(), // Define the profile page route
+        '/': (context) => SplashScreen(), 
+        '/login': (context) => LoginPage(),
+        '/register': (context) => RegisterPage(), 
+        // '/stats': (context) => StatsPage(),
+        '/home': (context) => HomePage(), 
+        '/education': (context) => EducationPage(), 
+        // '/profile': (context) => PatientProfilePage(),
         '/welcome': (context) => WelcomePage(),
       },
     );

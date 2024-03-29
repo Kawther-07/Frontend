@@ -31,14 +31,14 @@ class _StatsPageState extends State<StatsPage> {
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, dynamic>{
-          'medicalRecordId': widget.patientId, // Use widget.patientId here
+          'medicalRecordId': widget.patientId, 
           'rate': newGlycemiaRate,
         }),
       );
 
       if (response.statusCode == 201) {
-        fetchData(); // Fetch data again to update the chart
-        _glycemiaController.clear(); // Clear the text field
+        fetchData(); 
+        _glycemiaController.clear();
       } else {
         print('Failed to add glycemia record: ${response.statusCode}');
       }
@@ -47,19 +47,17 @@ class _StatsPageState extends State<StatsPage> {
     }
   }
 
+  Future<int> fetchMedicalRecordId(int patientId) async {
+    final Uri uri = Uri.parse('http://192.168.1.68:8000/api/medical-record/$patientId');
+    final http.Response response = await http.get(uri);
 
-Future<int> fetchMedicalRecordId(int patientId) async {
-  final Uri uri = Uri.parse('http://192.168.1.68:8000/api/medical-record/$patientId');
-  final http.Response response = await http.get(uri);
-
-  if (response.statusCode == 200) {
-    final dynamic responseData = jsonDecode(response.body);
-    return responseData['medicalRecordId']; // Assuming the response contains the medicalRecordId
-  } else {
-    throw Exception('Failed to fetch medical record ID');
+    if (response.statusCode == 200) {
+      final dynamic responseData = jsonDecode(response.body);
+      return responseData['medicalRecordId'];
+    } else {
+      throw Exception('Failed to fetch medical record ID');
+    }
   }
-}
-
 
   Future<void> fetchData() async {
     try {
@@ -78,32 +76,6 @@ Future<int> fetchMedicalRecordId(int patientId) async {
       print('Error fetching glycemia data: $error');
     }
   }
-
-
-  // Future<void> addGlycemiaRecord() async {
-  //   try {
-  //     final Uri uri = Uri.parse('http://192.168.1.69:3000/api/glycemia');
-  //     final http.Response response = await http.post(
-  //       uri,
-  //       headers: <String, String>{
-  //         'Content-Type': 'application/json; charset=UTF-8',
-  //       },
-  //       body: jsonEncode(<String, dynamic>{
-  //         'medicalRecordId': 1, // Replace with the actual medical record ID
-  //         'rate': newGlycemiaRate,
-  //       }),
-  //     );
-
-  //     if (response.statusCode == 201) {
-  //       fetchData(); // Fetch data again to update the chart
-  //       _glycemiaController.clear(); // Clear the text field
-  //     } else {
-  //       print('Failed to add glycemia record: ${response.statusCode}');
-  //     }
-  //   } catch (error) {
-  //     print('Error adding glycemia record: $error');
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {

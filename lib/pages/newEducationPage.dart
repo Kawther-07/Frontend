@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-// import 'package:flutter_application_1/widgets/educational_card.dart'; // Import your EducationalCard widget
 
 class NewEducationPage extends StatelessWidget {
+  const NewEducationPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'New Education',
           style: TextStyle(color: Colors.white),
         ),
         flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
               colors: [
                 Color(0xFFA67CE4),
                 Color(0xFF5915BD),
@@ -23,37 +24,38 @@ class NewEducationPage extends StatelessWidget {
             ),
           ),
         ),
-        iconTheme: IconThemeData(
+        iconTheme: const IconThemeData(
           color: Colors.white,
         ),
       ),
       body: ListView(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         children: [
           EducationalCard(
             title: 'What is Diabetic Foot Ulcer?',
             description: 'Learn about the causes, symptoms, and treatments for DFU.',
             imageUrl: 'assets/dfu1.png',
             onTap: () {
-              // Add onTap functionality if needed
             },
           ),
-          SizedBox(height: 16.0),
+
+          const SizedBox(height: 16.0),
+
           EducationalCard(
             title: 'Preventing Diabetic Foot Ulcer',
             description: 'Discover tips and strategies to prevent DFU and maintain foot health.',
             imageUrl: 'assets/ulcer1.jpg',
             onTap: () {
-              // Add onTap functionality if needed
             },
           ),
-          SizedBox(height: 16.0),
+
+          const SizedBox(height: 16.0),
+
           EducationalCard(
             title: 'Diabetic foot ulcer and self-care plans',
             description: 'Discover tips and strategies to prevent DFU and maintain foot health.',
             imageUrl: 'assets/dfu3.png',
             onTap: () {
-              // Add onTap functionality if needed
             },
           ),
         ],
@@ -68,7 +70,7 @@ class EducationalCard extends StatelessWidget {
   final String imageUrl;
   final VoidCallback? onTap;
 
-  const EducationalCard({
+  const EducationalCard({super.key, 
     required this.title,
     required this.description,
     required this.imageUrl,
@@ -79,7 +81,7 @@ class EducationalCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 155.0, // Adjust the height as needed
+      height: 145.0,
       child: Card(
         elevation: 4.0,
         shape: RoundedRectangleBorder(
@@ -90,7 +92,7 @@ class EducationalCard extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8.0),
-              gradient: LinearGradient(
+              gradient: const LinearGradient(
                 colors: [
                   Color(0xFF218BBC),
                   Color(0xFFA67CE4),
@@ -103,37 +105,40 @@ class EducationalCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(8.0),
                     bottomLeft: Radius.circular(8.0),
                   ),
                   child: Image.asset(
                     imageUrl,
                     fit: BoxFit.cover,
-                    width: 120.0, // Adjust the width as needed
-                    height: double.infinity, // Ensure the image fills the container height
+                    width: 120.0, 
+                    height: double.infinity, 
                   ),
                 ),
                 Expanded(
                   child: Padding(
-                    padding: EdgeInsets.all(12.0),
+                    padding: const EdgeInsets.all(15.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           title,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 15.0,
+                            fontSize: 16.0,
                             color: Colors.white,
                           ),
                         ),
-                        SizedBox(height: 8.0),
+
+                        const SizedBox(height: 8.0),
+
                         Expanded(
-                          child: SingleChildScrollView( // Allow scrolling for long descriptions
+                          // Allow scrolling for long descriptions
+                          child: SingleChildScrollView( 
                             child: Text(
                               description,
-                              style: TextStyle(fontSize: 14.0, color: Colors.white),
+                              style: const TextStyle(fontSize: 14.0, color: Colors.white),
                             ),
                           ),
                         ),

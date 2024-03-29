@@ -3,6 +3,8 @@ import 'login_page.dart';
 import 'register_page.dart'; 
 
 class WelcomePage extends StatelessWidget {
+  const WelcomePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,6 +42,7 @@ class WelcomePage extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 130),
+
                 const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -72,7 +75,8 @@ class WelcomePage extends StatelessWidget {
                   ],
                 ),
 
-                SizedBox(height: 25),
+                const SizedBox(height: 25),
+
                 Text(
                   'The diabetic foot ulcer management app made for people with diabetes.',
                   style: TextStyle(
@@ -81,10 +85,11 @@ class WelcomePage extends StatelessWidget {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 32),
+
+                const SizedBox(height: 32),
+
                 GestureDetector(
                   onTap: () {
-                    // Navigate to register page
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) => RegisterPage(),
@@ -95,7 +100,7 @@ class WelcomePage extends StatelessWidget {
                     padding: const EdgeInsets.all(15),
                     margin: const EdgeInsets.symmetric(horizontal: 25),
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
+                      gradient: const LinearGradient(
                         colors: [
                           Color(0xFFA67CE4), 
                           Color(0xFF5915BD), 
@@ -117,7 +122,9 @@ class WelcomePage extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: 16),
+
+                const SizedBox(height: 16),
+
                 GestureDetector(
                   onTap: () {
                     Navigator.of(context).push(
@@ -133,7 +140,7 @@ class WelcomePage extends StatelessWidget {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: Color(0xFF5915BD),
+                        color: const Color(0xFF5915BD),
                         width: 1.5,
                       ),
                     ),
