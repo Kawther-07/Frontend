@@ -2,6 +2,8 @@ import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_application_1/pages/newEducationPage.dart';
+import 'package:flutter_application_1/pages/newWelcomePage.dart';
 import 'package:flutter_application_1/pages/welcome_page.dart';
 import 'package:lottie/lottie.dart';
 
@@ -33,10 +35,10 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Container(
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
-          child: Lottie.asset('assets/Flow4.json'),
+          child: Lottie.asset('assets/Flow6.json'),
         ),
       ),
-      nextScreen: WelcomePage(),
+      nextScreen: NewWelcomePage(),
       splashIconSize: 600,
     );
   }

@@ -118,8 +118,8 @@ Widget build(BuildContext context) {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.person, color: Colors.white),
-                        SizedBox(width: 10),
+                        // Icon(Icons.person, color: Colors.white),
+                         SizedBox(width: 15),
                         Text(
                           _userName.isNotEmpty ? ' $_userName' : '',
                           style: TextStyle(fontSize: 15, color: Colors.white),

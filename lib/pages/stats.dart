@@ -79,6 +79,7 @@ Future<int> fetchMedicalRecordId(int patientId) async {
     }
   }
 
+
   // Future<void> addGlycemiaRecord() async {
   //   try {
   //     final Uri uri = Uri.parse('http://192.168.1.69:3000/api/glycemia');
@@ -212,66 +213,65 @@ Future<int> fetchMedicalRecordId(int patientId) async {
 
     return SizedBox(
       height: 250,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: seriesList.length,
-        itemBuilder: (BuildContext context, int index) {
-          return SizedBox(
-            width: MediaQuery.of(context).size.width,
-            child: charts.TimeSeriesChart(
-              [seriesList[index]],
-              animate: true,
-              dateTimeFactory: const charts.LocalDateTimeFactory(),
-              primaryMeasureAxis: const charts.NumericAxisSpec(
-                tickProviderSpec: charts.BasicNumericTickProviderSpec(desiredTickCount: 7),
-              ),
-              domainAxis: charts.DateTimeAxisSpec(
-                renderSpec: charts.SmallTickRendererSpec(
-                  labelStyle: charts.TextStyleSpec(color: charts.MaterialPalette.white),
-                  lineStyle: charts.LineStyleSpec(color: charts.MaterialPalette.white),
-                ),
-                tickFormatterSpec: charts.AutoDateTimeTickFormatterSpec(
-                  day: charts.TimeFormatterSpec(format: 'd', transitionFormat: 'MMM d'),
-                  hour: charts.TimeFormatterSpec(format: 'HH:mm', transitionFormat: 'MMM d HH:mm'),
-                ),
-                viewport: charts.DateTimeExtents(
-                  start: minDate, // Minimum date in the data
-                  end: maxDate,   // Maximum date in the data
-                ),
-              ),
-              behaviors: [
-                charts.ChartTitle(
-                  'Glycemia Stats',
-                  subTitle: 'Date',
-                  behaviorPosition: charts.BehaviorPosition.top,
-                  titleStyleSpec: charts.TextStyleSpec(color: charts.MaterialPalette.white, fontSize: 6),
-                  subTitleStyleSpec: charts.TextStyleSpec(color: charts.MaterialPalette.white, fontSize: 6),
-                ),
-              ],
-            ),
-          );
-        },
+      width: MediaQuery.of(context).size.width,
+      child: charts.TimeSeriesChart(
+        seriesList,
+        animate: true,
+        primaryMeasureAxis: const charts.NumericAxisSpec(
+          tickProviderSpec: charts.BasicNumericTickProviderSpec(desiredTickCount: 7),
+        ),
+        domainAxis: charts.DateTimeAxisSpec(
+          renderSpec: charts.SmallTickRendererSpec(
+            labelStyle: charts.TextStyleSpec(color: charts.MaterialPalette.white),
+            lineStyle: charts.LineStyleSpec(color: charts.MaterialPalette.white),
+          ),
+          tickProviderSpec: charts.StaticDateTimeTickProviderSpec(
+            // Specify static time values for ticks (every 4 hours)
+            <charts.TickSpec<DateTime>>[
+              for (int hour = 0; hour < 24; hour += 4)
+                charts.TickSpec(DateTime(2024, 1, 1, hour)),
+            ],
+          ),
+          tickFormatterSpec: charts.AutoDateTimeTickFormatterSpec(
+            hour: charts.TimeFormatterSpec(format: 'HH'), // Show hour of the day
+          ),
+          viewport: charts.DateTimeExtents(
+            start: minDate.subtract(const Duration(days: 1)), // Extend the start date by 1 day
+            end: maxDate.add(const Duration(days: 1)), // Extend the end date by 1 day
+          ),
+        ),
+        behaviors: [
+          charts.ChartTitle(
+            'Glycemia Stats',
+            subTitle: 'Date',
+            behaviorPosition: charts.BehaviorPosition.top,
+            titleStyleSpec: charts.TextStyleSpec(color: charts.MaterialPalette.white, fontSize: 12),
+            subTitleStyleSpec: charts.TextStyleSpec(color: charts.MaterialPalette.white, fontSize: 10),
+          ),
+        ],
       ),
     );
   }
 }
 
-Widget _emptyChart() {
-  return Container(
-    height: 250,
-    width: double.infinity,
-    child: Center(
-      child: Text(
-        'No glycemia data available',
-        style: TextStyle(
-          color: Colors.grey,
-          fontSize: 16.0,
+
+
+
+  Widget _emptyChart() {
+    return Container(
+      height: 250,
+      width: double.infinity,
+      child: Center(
+        child: Text(
+          'No glycemia data available',
+          style: TextStyle(
+            color: Colors.grey,
+            fontSize: 16.0,
+          ),
         ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 
 }
 
