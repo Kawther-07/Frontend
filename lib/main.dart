@@ -26,6 +26,7 @@ class MyApp extends StatelessWidget {
         '/home': (context) => HomePage(), // Define the home page route
         '/education': (context) => EducationPage(), // Define the home page route
         // '/profile': (context) => PatientProfilePage(), // Define the profile page route
+        '/welcome': (context) => WelcomePage(),
       },
     );
   }

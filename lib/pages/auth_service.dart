@@ -93,6 +93,14 @@ class AuthService {
         return;
       }
 
+      // Clear profile data from SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.remove('gender');
+      prefs.remove('height');
+      prefs.remove('weight');
+      prefs.remove('birth_date');
+
+      // Make logout request
       final Uri logoutUri = Uri.parse('http://192.168.1.68:8000/api/patient/logout');
 
       final http.Response response = await http.post(
@@ -104,7 +112,7 @@ class AuthService {
 
       if (response.statusCode == 200) {
         print("Logout successful.");
-        Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+        Navigator.pushNamedAndRemoveUntil(context, '/welcome', (route) => false);
       } else {
         print("Logout failed.");
       }
@@ -113,4 +121,6 @@ class AuthService {
       print('Error during logout: $e');
     }
   }
+
+  
 }

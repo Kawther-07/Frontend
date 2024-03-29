@@ -19,7 +19,7 @@ class RegisterPage extends StatelessWidget {
   final TextEditingController passwordController = TextEditingController();
 
   Future<void> registerUser(BuildContext context) async {
-  final Uri uri = Uri.parse('http://192.168.1.68:8000/api/patient');
+  final Uri uri = Uri.parse('http://192.168.1.68:8000/api/patient/register');
   final Map<String, dynamic> userData = {
     'first_name': fnameController.text,
     'last_name': lnameController.text,
@@ -41,15 +41,17 @@ class RegisterPage extends StatelessWidget {
       // Registration successful, extract patientId from response
       final Map<String, dynamic> responseData = jsonDecode(response.body);
       print('Response Data: $responseData');
-      final int patientId = responseData['id']; // Update this key
+      final int patientId = responseData['id']; 
+      print('Response Data: $patientId');
+      final String userName = '${fnameController.text} ${lnameController.text}';
 
   // Navigate to ProfileInfoPage and pass patientId as a parameter
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => HomePage(),
-        ),
-      );
+   Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomePage(patientId: patientId, userName: userName),
+          ),
+        );
     } else {
       // Registration failed, display error message
       showDialog(
