@@ -24,12 +24,9 @@ class PatientProfilePage extends StatefulWidget {
 }
 
 class _PatientProfilePageState extends State<PatientProfilePage> {
-
   Map<String, dynamic>? profileData;
   Map<String, dynamic>? medicalRecordData; 
-
   final storage = FlutterSecureStorage();
-
   late List<bool> _isTappedList;
 
   @override
@@ -41,37 +38,61 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
   }
 
   Future<void> fetchProfileData() async {
-    try {
-      final storage = FlutterSecureStorage();
-      final token = await storage.read(key: 'token');
-
-      final profileResponse = await http.get(
-        Uri.parse('http://192.168.1.68:8000/api/patient/profile/${widget.patientId}'),
-        headers: {
-          'Authorization': 'Bearer $token',
-        },
-      );
-      print('token $token');
-      if (profileResponse.statusCode == 200) {
-        final fetchedProfileData = jsonDecode(profileResponse.body);
-        setState(() {
-          profileData = fetchedProfileData['profile']; 
-        });
-        print('Profile Data: $profileData');
-      } else {
-        throw Exception('Failed to fetch patient profile: ${profileResponse.statusCode}');
-      }
-    } catch (error) {
-      print('Error fetching profile data: $error');
+  try {
+    final storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'token');
+    final profileResponse = await http.get(
+      Uri.parse('http://192.168.1.69:8000/api/patient/profile/${widget.patientId}'),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
+    print('Fetching profile data for patient ID: ${widget.patientId}');
+    print('Profile Request URL: ${profileResponse.request?.url}');
+    print('Profile Response Status Code: ${profileResponse.statusCode}');
+    print('Profile Response Body: ${profileResponse.body}');
+    if (profileResponse.statusCode == 200) {
+      final fetchedProfileData = jsonDecode(profileResponse.body);
+      setState(() {
+        profileData = fetchedProfileData['profile'];
+      });
+      print('Profile Data: $profileData');
+    } else if (profileResponse.statusCode == 404) {
+      setState(() {
+        profileData = null;
+      });
+    } else {
+      throw Exception('Failed to fetch patient profile: ${profileResponse.statusCode}');
     }
+  } catch (error) {
+    print('Error fetching profile data: $error');
   }
+}
+
+
+
+
+  void _navigateToPersonalProfilePage() async {
+  await fetchProfileData(); // Fetch profile data before navigating
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => PersonalProfilePage(
+        profileData: profileData, // Pass the fetched profile data
+        patientId: widget.patientId,
+      ),
+    ),
+  );
+}
+
+
 
   Future<void> fetchMedicalRecordData() async {
   try {
     final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
     final medicalRecordResponse = await http.get(
-      Uri.parse('http://192.168.1.68:8000/api/medical-record/${widget.patientId}'),
+      Uri.parse('http://192.168.1.69:8000/api/medical-record/${widget.patientId}'),
       headers: {
         'Authorization': 'Bearer $token',
       },
@@ -103,14 +124,14 @@ Widget build(BuildContext context) {
     appBar: AppBar(
       title: Text(
         'More',
-        style: TextStyle(color: Colors.white), // Set the text color of the app bar title here
+        style: TextStyle(color: Colors.white), 
       ),
       flexibleSpace: Container(
         decoration: BoxDecoration(
           gradient: const LinearGradient(
             colors: [
-              Color(0xFFA67CE4), // First color
-              Color(0xFF5915BD), // Second color
+              Color(0xFFA67CE4), 
+              Color(0xFF5915BD), 
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -118,10 +139,9 @@ Widget build(BuildContext context) {
         ),
       ),
       iconTheme: IconThemeData(
-        color: Colors.white, // Set the color of the back arrow here
+        color: Colors.white, 
       ),
     ),
-      // backgroundColor: Color(0xFFF9F6EE),
       body: SingleChildScrollView(
         padding: EdgeInsets.only(top: 50), 
         child: Center(
@@ -229,9 +249,7 @@ Widget build(BuildContext context) {
     );
   }
 
-
-
-Widget buildButton({required int index, required IconData icon, required String label, required Function onTap}) {
+  Widget buildButton({required int index, required IconData icon, required String label, required Function onTap}) {
     return GestureDetector(
       onTapDown: (_) {
         setState(() {
@@ -315,17 +333,34 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
   late double height;
   late double weight;
   late DateTime? birthDate;
-
   String? gender;
 
   @override
-  void initState() {
-    super.initState();
-    // Initialize birthDate from profileData if available
-    if (widget.profileData != null && widget.profileData!['birth_date'] != null) {
+void initState() {
+  super.initState();
+  // Initialize profile data if it's null for a new user
+  if (widget.profileData == null) {
+    // Set default values or leave them empty
+    height = 0.0;
+    weight = 0.0;
+    birthDate = null;
+    gender = null;
+  } else {
+    // Load profile data for existing user
+    // Initialize form fields with existing data
+    if (widget.profileData!['height'] != null) {
+      height = double.parse(widget.profileData!['height'].toString());
+    }
+    if (widget.profileData!['weight'] != null) {
+      weight = double.parse(widget.profileData!['weight'].toString());
+    }
+    if (widget.profileData!['birth_date'] != null) {
       birthDate = DateTime.parse(widget.profileData!['birth_date']);
     }
+    gender = widget.profileData?['gender'] ?? '';
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -359,7 +394,7 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
             child: Column(
               children: [
                 TextFormField(
-                  initialValue: widget.profileData?['gender'] ?? '',
+                  initialValue: gender,
                   decoration: InputDecoration(labelText: 'Gender'),
                   onChanged: (value) {
                     setState(() {
@@ -368,31 +403,15 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                   },
                 ),
                 TextFormField(
-                  initialValue: widget.profileData?['height'] != null
-                      ? widget.profileData!['height'].toString()
-                      : '',
+                  initialValue: height.toString(),
                   decoration: InputDecoration(labelText: 'Height'),
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter height';
-                    }
-                    return null;
-                  },
                   onSaved: (value) => height = double.parse(value!),
                 ),
                 TextFormField(
-                  initialValue: widget.profileData?['weight'] != null
-                      ? widget.profileData!['weight'].toString()
-                      : '',
+                  initialValue: weight.toString(),
                   decoration: InputDecoration(labelText: 'Weight'),
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter weight';
-                    }
-                    return null;
-                  },
                   onSaved: (value) => weight = double.parse(value!),
                 ),
                 TextFormField(
@@ -400,12 +419,6 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                     text: birthDate != null ? DateFormat('yyyy-MM-dd').format(birthDate!) : '',
                   ),
                   decoration: InputDecoration(labelText: 'Birth Date'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter birth date';
-                    }
-                    return null;
-                  },
                   onTap: () async {
                     DateTime? pickedDate = await showDatePicker(
                       context: context,
@@ -449,7 +462,7 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
-          borderRadius: BorderRadius.circular(10), // Adjust the radius as needed
+          borderRadius: BorderRadius.circular(10), 
         ),
         child: Text(
           'Save',
@@ -473,22 +486,18 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
 
 
   void _saveProfileData() async {
-  // Retrieve the patient's ID from the profile data
   final int patientId = widget.patientId;
   print('Patient ID: $patientId');
-  // Check if patientId is null
   if (patientId == null) {
     print('Error: Patient ID is null');
-    return; // or handle the error in another way
+    return;
   }
 
-  // Validate gender field
   if (gender == null || gender!.isEmpty) {
     print('Error: Gender is required');
     return;
   }
 
-  // Construct the body of the POST request
   final Map<String, dynamic> requestBody = {
     'patientId': patientId,
     'gender': gender,
@@ -496,17 +505,12 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
     'weight': weight,
     'birth_date': birthDate?.toIso8601String(),
   };
-
   print('Request Body: $requestBody');
-  // Encode the request body to JSON
   final String jsonBody = jsonEncode(requestBody);
   print('JSON Body: $jsonBody');
-
-  // Define the URI for the API endpoint
-  final Uri uri = Uri.parse('http://192.168.1.68:8000/api/patient/profile');
+  final Uri uri = Uri.parse('http://192.168.1.69:8000/api/patient/profile');
   print('Request URI: $uri');
   try {
-    // Send the POST request
     final http.Response response = await http.post(
       uri,
       headers: <String, String>{
@@ -514,12 +518,8 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
       },
       body: jsonBody,
     );
-
-    // Check if the request was successful
     if (response.statusCode == 200) {
-      // Handle successful response
       print('Profile data saved successfully!');
-      // Show success dialog
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -538,14 +538,11 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
         },
       );
     } else {
-      // Handle error response
       print('Failed to save profile data: ${response.statusCode}');
-      // Show error dialog
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            // title: Text('Error'),
             content: Text('Profile data saved successfully!'),
             actions: [
               TextButton(
@@ -560,9 +557,7 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
       );
     }
   } catch (error) {
-    // Handle network errors
     print('Error sending request: $error');
-    // Show error dialog
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -583,23 +578,15 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
   }
 }
 
-
-
   void _updateProfileData() async {
   final int patientId = widget.patientId;
-
-  // Ensure patientId is valid (not null)
   if (patientId == null) {
     print('Error: Invalid patient ID');
     return;
   }
-
-  // Construct the request body
   final Map<String, dynamic> requestBody = {
     'patientId': patientId,
   };
-
-  // Add non-empty fields to the request body
   if (gender != null && gender!.isNotEmpty) {
     requestBody['gender'] = gender;
   }
@@ -612,15 +599,10 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
   if (birthDate != null) {
     requestBody['birth_date'] = birthDate!.toIso8601String();
   }
-
-  // Convert the request body to JSON
   final String jsonBody = jsonEncode(requestBody);
   print('PATCH Request Body: $jsonBody');
-  // Define the request URI
-  final Uri uri = Uri.parse('http://192.168.1.68:8000/api/patient/updateprofile/$patientId');
-
+  final Uri uri = Uri.parse('http://192.168.1.69:8000/api/patient/updateprofile/$patientId');
   try {
-    // Send the PATCH request
     final http.Response response = await http.patch(
       uri,
       headers: <String, String>{
@@ -628,11 +610,8 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
       },
       body: jsonBody,
     );
-
-    // Handle the response
     if (response.statusCode == 200) {
       print('Profile data updated successfully!');
-      // Show success dialog
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -652,7 +631,6 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
       );
     } else {
       print('Failed to update profile data: ${response.statusCode}');
-      // Show error dialog
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -672,9 +650,7 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
       );
     }
   } catch (error) {
-    // Handle errors
     print('Error sending request: $error');
-    // Show error dialog
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -694,47 +670,41 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
     );
   }
 }
-
 }
-
   Widget _buildProfileField({
-  required String label,
+    required String label,
   required String value,
   required IconData icon,
-  required VoidCallback onPressed,
+  VoidCallback? onPressed,
 }) {
   return Padding(
-    padding: const EdgeInsets.only(left: 18.0), 
+    padding: const EdgeInsets.only(left: 18.0),
     child: ListTile(
       title: Text(
         label,
         style: const TextStyle(fontSize: 18, color: Color(0xFF5915BD)),
       ),
       subtitle: Container(
-        height: 35, // Set a fixed height for the TextFormField
+        height: 35,
         child: TextFormField(
           initialValue: value,
-          readOnly: label != 'Birth Date', // Make birth date field readOnly
+          readOnly: label != 'Birth Date',
           style: const TextStyle(fontSize: 18, color: Color(0xFF505050)),
-          onTap: label == 'Birth Date' ? onPressed : null, // Show date picker only for birth date field
+          onTap: onPressed,
         ),
       ),
-      trailing: label == 'Birth Date' ? IconButton(
-        icon: Icon(
-          icon,
-          color: Color(0xFF5915BD),
-        ),
-        onPressed: onPressed,
-      ) : null,
+      trailing: label == 'Birth Date'
+          ? IconButton(
+              icon: Icon(
+                icon,
+                color: Color(0xFF5915BD),
+              ),
+              onPressed: onPressed,
+            )
+          : null,
     ),
   );
 }
-
-
-
-
-
-
 
 // Medical Record Page
 class MedicalRecordPage extends StatelessWidget {

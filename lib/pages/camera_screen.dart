@@ -36,7 +36,7 @@ class CameraScreen extends StatelessWidget {
   Future<void> sendImageDataToBackend(String base64Image) async {
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.1.68:8000/api/dfu-record'), 
+        Uri.parse('http://192.168.1.69:8000/api/dfu-record'), 
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
