@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
   static Future<void> signInUser(BuildContext context, TextEditingController emailController, TextEditingController passwordController) async {
-    final Uri loginUri = Uri.parse('http://192.168.1.68:8000/api/patient/login');
+    final Uri loginUri = Uri.parse('http://192.168.1.69:8000/api/patient/login');
     final Map<String, dynamic> userData = {
       'email': emailController.text,
       'password': passwordController.text,
@@ -26,7 +26,7 @@ class AuthService {
         final token = responseData['token'];
 
         // Request to fetch profile information
-        final Uri profileUri = Uri.parse('http://192.168.1.68:8000/api/patient/profile');
+        final Uri profileUri = Uri.parse('http://192.168.1.69:8000/api/patient/profile');
         final http.Response profileResponse = await http.get(
           profileUri,
           headers: <String, String>{
@@ -98,7 +98,7 @@ class AuthService {
       prefs.remove('birth_date');
 
       // Make logout request
-      final Uri logoutUri = Uri.parse('http://192.168.1.68:8000/api/patient/logout');
+      final Uri logoutUri = Uri.parse('http://192.168.1.69:8000/api/patient/logout');
 
       final http.Response response = await http.post(
         logoutUri,

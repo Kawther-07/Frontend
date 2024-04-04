@@ -18,7 +18,7 @@ Future<void> resetPassword(BuildContext context) async {
   final String? email = PasswordResetManager.userEmail;
 
   if (email != null) {
-    final Uri uri = Uri.parse('http://192.168.1.68:8000/api/reset-password');
+    final Uri uri = Uri.parse('http://192.168.1.69:8000/api/reset-password');
     final http.Response response = await http.post(
       uri,
       headers: <String, String>{

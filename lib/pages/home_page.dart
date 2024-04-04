@@ -27,37 +27,34 @@ class _HomePageState extends State<HomePage> {
   String _userName = '';
   
   @override
-  void initState() {
-    super.initState();
-    fetchUserName();
-  }
+void initState() {
+  super.initState();
+  fetchUserName(); // Fetch user name when HomePage is initialized
+}
 
-  Future<void> fetchUserName() async {
-    try {
-      final Uri uri = Uri.parse('http://192.168.1.68:8000/api/patient/name/${widget.patientId}');
-      final http.Response response = await http.get(uri);
-
-      print('Response status code: ${response.statusCode}');
-      print('Response body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-        final name = responseData['patientName'];
-
-        if (name != null && name.isNotEmpty) {
-          setState(() {
-            _userName = name;
-          });
-        } else {
-          print('User name is null or empty');
-        }
+Future<void> fetchUserName() async {
+  try {
+    final Uri uri = Uri.parse('http://192.168.1.69:8000/api/patient/name/${widget.patientId}');
+    final http.Response response = await http.get(uri);
+    print('Response status code: ${response.statusCode}');
+    print('Response body: ${response.body}');
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      final name = responseData['patientName']; // Update the key to match the response data
+      if (name != null && name.isNotEmpty) {
+        setState(() {
+          _userName = name;
+        });
       } else {
-        print('Failed to fetch user name: ${response.statusCode}');
+        print('User name is null or empty');
       }
-    } catch (e) {
-      print('Error fetching user name: $e');
+    } else {
+      print('Failed to fetch user name: ${response.statusCode}');
     }
+  } catch (e) {
+    print('Error fetching user name: $e');
   }
+}
 
  Future<void> _takePicture() async {
     final imagePicker = ImagePicker();

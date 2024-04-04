@@ -24,7 +24,7 @@ class _StatsPageState extends State<StatsPage> {
 
   Future<void> addGlycemiaRecord() async {
     try {
-      final Uri uri = Uri.parse('http://192.168.1.68:8000/api/glycemia');
+      final Uri uri = Uri.parse('http://192.168.1.69:8000/api/glycemia');
       final http.Response response = await http.post(
         uri,
         headers: <String, String>{
@@ -48,7 +48,7 @@ class _StatsPageState extends State<StatsPage> {
   }
 
   Future<int> fetchMedicalRecordId(int patientId) async {
-    final Uri uri = Uri.parse('http://192.168.1.68:8000/api/medical-record/$patientId');
+    final Uri uri = Uri.parse('http://192.168.1.69:8000/api/medical-record/$patientId');
     final http.Response response = await http.get(uri);
 
     if (response.statusCode == 200) {
@@ -61,7 +61,7 @@ class _StatsPageState extends State<StatsPage> {
 
   Future<void> fetchData() async {
     try {
-      final Uri uri = Uri.parse('http://192.168.1.68:8000/api/glycemia/${widget.patientId}');
+      final Uri uri = Uri.parse('http://192.168.1.69:8000/api/glycemia/${widget.patientId}');
       final http.Response response = await http.get(uri);
 
       if (response.statusCode == 200) {
