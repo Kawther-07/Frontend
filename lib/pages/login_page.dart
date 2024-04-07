@@ -56,6 +56,7 @@ Future<void> signInUser(BuildContext context) async {
       
       // Extract the patientId from the decoded token
       final patientId = decodedToken['id'];
+      print('Patient idddd: $patientId');
 
       // Navigate to the welcome page with patientId
       Navigator.of(context).push(

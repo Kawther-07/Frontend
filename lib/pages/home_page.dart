@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/pages/auth_service.dart';
+import 'package:flutter_application_1/pages/camera_screen.dart';
 import 'package:flutter_application_1/pages/components/CustomBottomNavigationBar.dart';
 import 'package:flutter_application_1/pages/dfu_record_page.dart';
 import 'package:flutter_application_1/pages/education_page.dart';
@@ -25,11 +26,13 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   String _userName = '';
+  int? _medicalRecordId;
   
   @override
 void initState() {
   super.initState();
-  fetchUserName(); // Fetch user name when HomePage is initialized
+  fetchUserName(); 
+  fetchMedicalRecordId();
 }
 
 Future<void> fetchUserName() async {
@@ -56,24 +59,77 @@ Future<void> fetchUserName() async {
   }
 }
 
- Future<void> _takePicture() async {
-    final imagePicker = ImagePicker();
-    try {
-      final pickedFile = await imagePicker.getImage(source: ImageSource.camera);
-      if (pickedFile != null) {
-        // Display the picture in a new screen
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => DFURecordPage(imagePath: pickedFile.path),
-          ),
-        );
-      }
-    } catch (e) {
-      print('Error taking picture: $e');
-    }
-  }
+Future<void> fetchMedicalRecordId() async {
+  try {
+    final Uri uri = Uri.parse('http://192.168.1.69:8000/api/medical-record/${widget.patientId}');
 
+    final http.Response response = await http.get(uri);
+    print('Response status code: ${response.statusCode}');
+    print('Response body: ${response.body}');
+    
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      final medicalRecordId = responseData['medicalRecord']['id']; // Retrieve the medical record ID from the response
+      if (medicalRecordId != null) {
+        setState(() {
+          _medicalRecordId = medicalRecordId; // Update _medicalRecordId
+        });
+      } else {
+        print('Medical record ID is null');
+      }
+    } else {
+      print('Failed to fetch medical record ID: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Error fetching medical record ID: $e');
+  }
+}
+
+
+
+
+
+
+//  Future<void> _takePicture() async {
+//   final imagePicker = ImagePicker();
+//   try {
+//     final pickedFile = await imagePicker.getImage(source: ImageSource.camera);
+//     if (pickedFile != null) {
+//       if (pickedFile.path != null && pickedFile.path.isNotEmpty) {
+//         print('Image path: ${pickedFile.path}'); // Verify the image path
+//         final uri = Uri.parse('http://192.168.1.69:8000/api/dfu-record/upload');
+//         final request = http.MultipartRequest('POST', uri);
+//         final file = await http.MultipartFile.fromPath('image', pickedFile.path);
+//         print('File added: $file'); // Verify if the file is added correctly
+//         request.files.add(file);
+//         if (_medicalRecordId != null) {
+//           request.fields['medicalRecordId'] = _medicalRecordId.toString(); // Add medicalRecordId if not null
+//         } else {
+//           print('Medical record ID is null');
+//           return; // Return if medicalRecordId is null
+//         }
+//         final streamedResponse = await request.send();
+//         final response = await http.Response.fromStream(streamedResponse);
+//         print('Response status code: ${response.statusCode}');
+//         print('Response body: ${response.body}');
+//         if (response.statusCode == 200) {
+//           print('Image uploaded successfully');
+//           // Handle success
+//         } else {
+//           print('Failed to upload image: ${response.reasonPhrase}');
+//           // Handle failure
+//         }
+//       } else {
+//         print('Invalid image path');
+//       }
+//     } else {
+//       print('No image picked');
+//     }
+//   } catch (e) {
+//     print('Error taking picture: $e');
+//     // Handle error
+//   }
+// }
 
   @override
   Widget build(BuildContext context) {
@@ -284,32 +340,40 @@ Future<void> fetchUserName() async {
                   const SizedBox(height: 16),
 
                   SizedBox(
-                    width: 200,
-                    height: 40, 
-                    child: ElevatedButton(
-                      onPressed: _takePicture,
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30), 
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
-                        backgroundColor: Colors.white, 
-                      ),
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Take a picture',
-                            style: TextStyle(color: Color(0xFF5915BD)), 
-                          ),
-                          Icon(
-                            Icons.camera_alt,
-                            color: Color(0xFF5915BD), 
-                          ),
-                        ],
-                      ),
+              width: 200,
+              height: 40, 
+              child: ElevatedButton(
+                onPressed: _medicalRecordId != null ? () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CameraScreen(medicalRecordId: _medicalRecordId!),
                     ),
+                  );
+                } : null,
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30), 
                   ),
+                  padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+                  backgroundColor: Colors.white, 
+                ),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Take a picture',
+                      style: TextStyle(color: Color(0xFF5915BD)), 
+                    ),
+                    Icon(
+                      Icons.camera_alt,
+                      color: Color(0xFF5915BD), 
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
                 ],
               ),
             ),
