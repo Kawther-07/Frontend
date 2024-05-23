@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/pages/dfu_record_page.dart';
+import 'package:DoolabMobile/pages/dfu_record_page.dart';
 import 'package:image_picker/image_picker.dart';
 // import 'display_picture_screen.dart'; 
 import 'dart:convert';
@@ -30,7 +30,7 @@ class CameraScreen extends StatelessWidget {
       print('Image saved to: $imagePath');
 
       // Create a multipart request
-      final uri = Uri.parse('http://192.168.1.69:8000/api/dfu-record/upload');
+      final uri = Uri.parse('http://192.168.1.29:8000/api/dfu-record/upload');
       final request = http.MultipartRequest('POST', uri);
       
       // Add the image file to the request
