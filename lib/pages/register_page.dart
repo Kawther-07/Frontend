@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'package:DoolabMobile/pages/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:DoolabMobile/pages/components/my_texfield.dart'; // Assuming 'MyTextField' is imported correctly
 import 'package:DoolabMobile/pages/home_page.dart';
 import 'package:DoolabMobile/pages/patient_profile_page.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'login_page.dart';
 import 'home_page.dart';
@@ -24,7 +26,6 @@ class _RegisterPageState extends State<RegisterPage> {
   List<Map<String, dynamic>> doctors = [];
   String? selectedDoctorId;
   String? selectedDoctorName;
-  Map<String, String> doctorIdMap = {}; // Map to store doctor names to IDs
 
   @override
   void initState() {
@@ -41,9 +42,8 @@ class _RegisterPageState extends State<RegisterPage> {
         setState(() {
           doctors = doctorsData.map((doctor) {
             String doctorName = '${doctor['first_name']} ${doctor['last_name']}';
-            doctorIdMap[doctorName] = doctor['id'].toString(); // Map doctor name to ID
             return {
-              'id': doctor['id'],
+              'id': doctor['id'].toString(),
               'name': doctorName,
             };
           }).toList();
@@ -88,46 +88,43 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void registerUser(BuildContext context) async {
-    final Uri uri = Uri.parse('http://192.168.1.29:8000/api/patient/register');
-    final Map<String, dynamic> userData = {
-      'first_name': fnameController.text,
-      'last_name': lnameController.text,
-      'phone': phoneController.text,
-      'email': emailController.text,
-      'password': passwordController.text,
-      'selected_doctor': selectedDoctorId, // Use selectedDoctorId here
-    };
+  final Uri uri = Uri.parse('http://192.168.1.29:8000/api/patient/register');
+  final Map<String, dynamic> userData = {
+    'first_name': fnameController.text,
+    'last_name': lnameController.text,
+    'phone': phoneController.text,
+    'email': emailController.text,
+    'password': passwordController.text,
+    'selected_doctor': selectedDoctorId ?? '',
+  };
 
-    try {
-      final http.Response response = await http.post(
-        uri,
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(userData),
-      );
+  try {
+    final http.Response response = await http.post(
+      uri,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(userData),
+    );
 
-      // Handle response based on status code
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = jsonDecode(response.body);
-        final int patientId = responseData['id'];
-        final String userName = '${fnameController.text} ${lnameController.text}';
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = jsonDecode(response.body);
+      final String? message = responseData['message'];
+      final int? patientId = responseData['id'];
 
-        // Save doctorId to use later
-        int? doctorId = int.tryParse(selectedDoctorId ?? ''); // Parse selectedDoctorId as int
+      if (message == 'Patient registered successfully' && patientId != null) {
+        final storage = FlutterSecureStorage();
+        await storage.write(key: 'token', value: ''); // Replace with your token logic
 
-        // Navigate to Home Page after registration
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => HomePage(
-              patientId: patientId,
-              doctorId: doctorId,
-            ),
+            builder: (context) => HomePage(patientId: patientId),
           ),
         );
       } else {
-        // Registration failed, display error message
+        // Handle unexpected response or message scenario
+        print('Unexpected response data: $responseData');
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -146,10 +143,50 @@ class _RegisterPageState extends State<RegisterPage> {
           },
         );
       }
-    } catch (e) {
-      print('Error: $e');
+    } else {
+      // Handle other status codes (e.g., 400, 500)
+      print('Registration failed with status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Error'),
+            content: const Text('Failed to register user.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
     }
+  } catch (e) {
+    print('Error during registration: $e');
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: const Text('Failed to register user.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
+}
 
   void navigateToSignInPage(BuildContext context) {
     Navigator.of(context).push(

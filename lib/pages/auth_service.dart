@@ -5,6 +5,94 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
+  static Future<void> registerUser(
+    BuildContext context,
+    TextEditingController fnameController,
+    TextEditingController lnameController,
+    TextEditingController phoneController,
+    TextEditingController emailController,
+    TextEditingController passwordController,
+    String? selectedDoctorId,
+  ) async {
+    final Uri registerUri = Uri.parse('http://192.168.1.29:8000/api/patient/register');
+    final Map<String, dynamic> userData = {
+      'first_name': fnameController.text,
+      'last_name': lnameController.text,
+      'phone': phoneController.text,
+      'email': emailController.text,
+      'password': passwordController.text,
+      'selected_doctor': selectedDoctorId ?? '', // Ensure selectedDoctorId is not null
+    };
+
+    try {
+      final http.Response registerResponse = await http.post(
+        registerUri,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(userData),
+      );
+
+      if (registerResponse.statusCode == 200) {
+        final responseData = jsonDecode(registerResponse.body);
+        final token = responseData['token']; // Ensure 'token' key exists in responseData
+
+        // Store token securely using flutter_secure_storage
+        final storage = FlutterSecureStorage();
+        await storage.write(key: 'token', value: token);
+
+        // Store profile data (if needed) in SharedPreferences
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString('email', emailController.text); // Store relevant profile data
+
+        // Navigate to home page or other appropriate page after registration
+        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+      } else {
+        // Handle registration failure
+        print('Registration failed: ${registerResponse.statusCode}');
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Error'),
+              content: const Text('Failed to register user.'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (e) {
+      print('Error during registration: $e');
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Error'),
+            content: const Text('Failed to register user. Please try again later.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+
+
+
   static Future<void> signInUser(BuildContext context, TextEditingController emailController, TextEditingController passwordController) async {
     final Uri loginUri = Uri.parse('http://192.168.1.29:8000/api/patient/login');
     final Map<String, dynamic> userData = {

@@ -4,10 +4,9 @@ import 'package:http/http.dart' as http;
 
 
 class DFURecordPage extends StatelessWidget {
-  final String? imagePath;
+  final String imageUrl;
 
-  const DFURecordPage({Key? key, required this.imagePath}) : super(key: key);
-  
+  const DFURecordPage({Key? key, required this.imageUrl}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -48,14 +47,18 @@ class DFURecordPage extends StatelessWidget {
               alignment: Alignment.topLeft,
               child: Column(
                 children: [
-                  if (imagePath != null && imagePath!.isNotEmpty) 
+                  if (imageUrl.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(left: 20, top: 10),
-                      child: Image.file(
-                        File(imagePath!),
+                      child: Image.network(
+                        imageUrl,
                         fit: BoxFit.cover,
                         width: 250,
                         height: 250,
+                        errorBuilder: (context, error, stackTrace) => Text(
+                          'Error loading image',
+                          style: TextStyle(color: Colors.red),
+                        ),
                       ),
                     )
                   else
@@ -65,7 +68,7 @@ class DFURecordPage extends StatelessWidget {
                         "You haven't taken any picture yet",
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey.shade500, 
+                          color: Colors.grey.shade500,
                         ),
                       ),
                     ),

@@ -292,7 +292,8 @@ class LoginPage extends StatelessWidget {
 
         // Store the token and doctorId
         await storage.write(key: 'token', value: token);
-        await storage.write(key: 'doctorId', value: doctorId.toString());
+        print('Stored Token: $token');
+        // await storage.write(key: 'doctorId', value: doctorId.toString());
 
         final decodedToken = jsonDecode(utf8.decode(base64.decode(base64.normalize(token.split('.')[1]))));
 

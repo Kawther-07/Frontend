@@ -1,16 +1,15 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:DoolabMobile/pages/auth_service.dart';
-import 'package:DoolabMobile/pages/components/CustomBottomNavigationBar.dart';
+import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:DoolabMobile/pages/dfu_record_page.dart';
 import 'package:DoolabMobile/pages/education_page.dart';
 import 'package:DoolabMobile/pages/stats.dart';
-// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:http/http.dart' as http;
-// import 'package:shared_preferences/shared_preferences.dart';
-import 'patient_profile_page.dart';
-import 'dart:convert';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
+import 'package:DoolabMobile/pages/patient_profile_page.dart';
+import 'package:DoolabMobile/pages/components/CustomBottomNavigationBar.dart';
+import 'package:DoolabMobile/pages/auth_service.dart';
 
 class HomePage extends StatefulWidget {
   final int? patientId;
@@ -58,23 +57,47 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _takePicture() async {
-    final imagePicker = ImagePicker();
-    try {
-      final pickedFile = await imagePicker.getImage(source: ImageSource.camera);
-      if (pickedFile != null) {
-        // Display the picture in a new screen
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => DFURecordPage(imagePath: pickedFile.path),
-          ),
-        );
-      }
-    } catch (e) {
-      print('Error taking picture: $e');
-    }
-  }
+  // Future<void> _takePicture() async {
+  //   final imagePicker = ImagePicker();
+  //   try {
+  //     final pickedFile = await imagePicker.pickImage(source: ImageSource.camera);
+  //     if (pickedFile != null) {
+  //       final File imageFile = File(pickedFile.path);
+
+  //       // Upload image to Firebase Storage
+  //       final Reference storageRef = FirebaseStorage.instance.ref().child('images/${DateTime.now().millisecondsSinceEpoch}.jpg');
+  //       final UploadTask uploadTask = storageRef.putFile(imageFile);
+        
+  //       // Get download URL of uploaded image
+  //       TaskSnapshot snapshot = await uploadTask;
+  //       final String downloadUrl = await snapshot.ref.getDownloadURL();
+
+  //       // Send downloadUrl to backend
+  //       final Uri uri = Uri.parse('http://192.168.1.29:8000/api/dfu-record/upload');
+  //       final http.Response response = await http.post(
+  //         uri,
+  //         body: json.encode({
+  //           'medicalRecordId': widget.patientId,
+  //           'imageUrl': downloadUrl,
+  //         }),
+  //         headers: {'Content-Type': 'application/json'},
+  //       );
+
+  //       if (response.statusCode == 200) {
+  //         Navigator.push(
+  //           context,
+  //           MaterialPageRoute(
+  //             builder: (context) => DFURecordPage(imageUrl: downloadUrl),
+  //           ),
+  //         );
+  //       } else {
+  //         print('Failed to upload image to backend: ${response.statusCode}');
+  //       }
+  //     }
+  //   } catch (e) {
+  //     print('Error taking picture or uploading: $e');
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -280,27 +303,48 @@ class _HomePageState extends State<HomePage> {
                     width: 200,
                     height: 40,
                     child: ElevatedButton(
-                      onPressed: _takePicture,
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
-                        backgroundColor: Colors.white,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: const [
-                          Text(
-                            'Take a picture',
-                            style: TextStyle(color: Color(0xFF5915BD)),
-                          ),
-                          Icon(
-                            Icons.camera_alt,
-                            color: Color(0xFF5915BD),
-                          ),
-                        ],
-                      ),
+                      onPressed: () async {
+                        final imagePicker = ImagePicker();
+                        try {
+                          final pickedFile = await imagePicker.pickImage(source: ImageSource.camera);
+                          if (pickedFile != null) {
+                            final File imageFile = File(pickedFile.path);
+
+                            // Upload image to Firebase Storage
+                            final Reference storageRef = FirebaseStorage.instance.ref().child('images/${DateTime.now().millisecondsSinceEpoch}.jpg');
+                            final UploadTask uploadTask = storageRef.putFile(imageFile);
+                            
+                            // Get download URL of uploaded image
+                            TaskSnapshot snapshot = await uploadTask;
+                            final String downloadUrl = await snapshot.ref.getDownloadURL();
+
+                            // Send downloadUrl to backend
+                            final Uri uri = Uri.parse('http://192.168.1.29:8000/api/dfu-record/upload');
+                            final http.Response response = await http.post(
+                              uri,
+                              body: json.encode({
+                                'medicalRecordId': widget.patientId,
+                                'imageUrl': downloadUrl,
+                              }),
+                              headers: {'Content-Type': 'application/json'},
+                            );
+
+                            if (response.statusCode == 200) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DFURecordPage(imageUrl: downloadUrl),
+                                ),
+                              );
+                            } else {
+                              print('Failed to upload image to backend: ${response.statusCode}');
+                            }
+                          }
+                        } catch (e) {
+                          print('Error taking picture or uploading: $e');
+                        }
+                      },
+                      child: Text('Take Picture'),
                     ),
                   ),
                 ],
@@ -406,9 +450,9 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             );
-            } else {
-              print('Patient ID is null');
-            }
+          } else {
+            print('Patient ID is null');
+          }
         break;
       }
     }
@@ -442,23 +486,6 @@ class _HomePageState extends State<HomePage> {
     });
   }
 }
-
-// class DisplayPictureScreen extends StatelessWidget {
-//   final String imagePath;
-//   const DisplayPictureScreen({Key? key, required this.imagePath}) : super(key: key);
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('Display Picture'),
-//       ),
-//       body: Image.file(
-//         File(imagePath),
-//         fit: BoxFit.cover,
-//       ),
-//     );
-//   }
-// }
 
 class FootConditionCard extends StatelessWidget {
   final String imagePath;

@@ -36,9 +36,8 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
   void initState() {
     super.initState();
     fetchProfileData();
-    print('Doctor ID: ${widget.doctorId}');
-    fetchMedicalRecordData(); 
-     _isTappedList = List.filled(8, false);
+    fetchMedicalRecordData(); // Fetch medical record data on page load
+    _isTappedList = List.filled(8, false);
   }
 
   Future<void> fetchProfileData() async {
@@ -51,6 +50,7 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
         'Authorization': 'Bearer $token',
       },
     );
+    print('Token: $token');
     print('Fetching profile data for patient ID: ${widget.patientId}');
     print('Profile Request URL: ${profileResponse.request?.url}');
     print('Profile Response Status Code: ${profileResponse.statusCode}');
@@ -85,50 +85,41 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
   );
 }
 
-  Future<void> fetchMedicalRecordData() async {
-  try {
-    final storage = FlutterSecureStorage();
-    final token = await storage.read(key: 'token');
-    final medicalRecordResponse = await http.get(
-      Uri.parse('http://192.168.1.29:8000/api/medical-record/${widget.patientId}'),
-      headers: {
-        'Authorization': 'Bearer $token',
-      },
-    );
-    print('Fetching med data for patient ID: ${widget.patientId}');
-    print('Med Request URL: ${medicalRecordResponse.request?.url}');
-    print('Med Response Status Code: ${medicalRecordResponse.statusCode}');
-    print('Med Response Body: ${medicalRecordResponse.body}');
-    
-    print('Doctor ID isSsSs: ${widget.doctorId}');
-    if (medicalRecordResponse.statusCode == 200) {
-      final fetchedMedicalRecordData = jsonDecode(medicalRecordResponse.body)['medicalRecord'];
-      print('Medical record data fetched successfully: $fetchedMedicalRecordData');
-      setState(() {
-        medicalRecordData = fetchedMedicalRecordData;
-      });
-    } else {
-      print('Failed to fetch medical record: ${medicalRecordResponse.statusCode}');
-      throw Exception('Failed to fetch medical record: ${medicalRecordResponse.statusCode}');
-    }
-  } catch (error) {
-    print('Error fetching medical record data: $error');
-  }
-}
 
-void _navigateToMedicalRecordPage() async {
-  await fetchMedicalRecordData(); // Fetch profile data before navigating
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => MedicalRecordPage(
-        medicalRecordData: medicalRecordData, // Pass the fetched profile data
-        patientId: widget.patientId,
-        doctorId: widget.doctorId!,
+Future<void> fetchMedicalRecordData() async {
+    try {
+      final medicalRecordResponse = await http.get(
+        Uri.parse('http://192.168.1.29:8000/api/medical-record/${widget.patientId}'),
+      );
+
+      if (medicalRecordResponse.statusCode == 200) {
+        final fetchedMedicalRecordData = jsonDecode(medicalRecordResponse.body)['medicalRecord'];
+        setState(() {
+          medicalRecordData = fetchedMedicalRecordData;
+        });
+      } else {
+        print('Failed to fetch medical record: ${medicalRecordResponse.statusCode}');
+        throw Exception('Failed to fetch medical record: ${medicalRecordResponse.statusCode}');
+      }
+    } catch (error) {
+      print('Error fetching medical record data: $error');
+    }
+  }
+
+  void _navigateToMedicalRecordPage() async {
+    await fetchMedicalRecordData(); // Fetch medical record data before navigating
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MedicalRecordPage(
+          medicalRecordData: medicalRecordData,
+          patientId: widget.patientId,
+          doctorId: widget.doctorId, // Pass doctorId if available
+          medicalRecordId: medicalRecordData != null ? medicalRecordData!['id'] : null,
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   void _handleItemTap(int index) {
   widget.onItemTapped(index);
@@ -207,7 +198,7 @@ Widget build(BuildContext context) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => DFURecordPage(imagePath: '',),
+                      builder: (context) => DFURecordPage(imageUrl: '',),
                     ),
                   );
                 },
@@ -740,7 +731,7 @@ class MedicalRecordPage extends StatefulWidget {
   final Map<String, dynamic>? medicalRecordData;
   final int patientId;
   final int? doctorId;
-  final int? medicalRecordId; // Ensure medicalRecordId is defined if used
+  final int? medicalRecordId;
 
   MedicalRecordPage({
     Key? key,
@@ -755,19 +746,29 @@ class MedicalRecordPage extends StatefulWidget {
 }
 
 class _MedicalRecordPageState extends State<MedicalRecordPage> {
-  final _formKey = GlobalKey<FormState>(); // Define _formKey
+  final _formKey = GlobalKey<FormState>();
   late bool hasDFU;
   late bool isSmoker;
   late String diabetesType;
   late String bloodGroup;
   late DateTime? hadDiabetes;
-  int? doctorId; // Declare doctorId as nullable in _MedicalRecordPageState
+  late TextEditingController _dateController;
+  int? doctorId;
 
   @override
   void initState() {
     super.initState();
-    doctorId = widget.doctorId; // Initialize doctorId from widget property
+    doctorId = widget.doctorId;
     _initializeMedicalRecord();
+    _dateController = TextEditingController(
+      text: hadDiabetes != null ? DateFormat('yyyy-MM-dd').format(hadDiabetes!) : '',
+    );
+  }
+
+  @override
+  void dispose() {
+    _dateController.dispose();
+    super.dispose();
   }
 
   void _initializeMedicalRecord() {
@@ -787,105 +788,96 @@ class _MedicalRecordPageState extends State<MedicalRecordPage> {
     }
   }
 
-  Future<void> saveOrUpdateMedicalRecord() async {
+  Future<void> saveMedicalRecord() async {
     if (!_formKey.currentState!.validate()) return;
     _formKey.currentState!.save();
 
-    final token = await FlutterSecureStorage().read(key: 'token');
-    if (token == null) {
-      print('Error: No token found.');
-      return;
-    }
-
-    final headers = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
-    };
-
-    final body = {
-  'patientId': widget.patientId,
-  'doctorId': doctorId ?? 0, // Replace 0 with a suitable default if doctorId should never be null
-  'diabetesType': diabetesType,
-  'hasDFU': hasDFU,
-  'isSmoker': isSmoker,
-  'hadDiabetes': hadDiabetes != null ? DateFormat('yyyy-MM-dd').format(hadDiabetes!) : null,
-  'bloodGroup': bloodGroup,
-};
-
     try {
-      final response = widget.medicalRecordId != null
-          ? await http.patch(
-              Uri.parse('http://192.168.1.29:8000/api/medical-record/${widget.medicalRecordId}'),
-              headers: headers,
-              body: jsonEncode(body),
-            )
-          : await http.post(
-              Uri.parse('http://192.168.1.29:8000/api/medical-record'),
-              headers: headers,
-              body: jsonEncode(body),
-            );
+      final body = {
+        'patientId': widget.patientId,
+        'doctorId': doctorId ?? 0,
+        'diabetesType': diabetesType,
+        'hasDFU': hasDFU,
+        'isSmoker': isSmoker,
+        'hadDiabetes': hadDiabetes != null ? DateFormat('yyyy-MM-dd').format(hadDiabetes!) : null,
+        'bloodGroup': bloodGroup,
+      };
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        print('Medical record saved successfully');
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('Success'),
-              content: Text('Medical record saved successfully!'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
+      final response = await http.post(
+        Uri.parse('http://192.168.1.29:8000/api/medical-record'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 201) {
+        _showDialog('Success', 'Medical record saved successfully!');
       } else {
-        print('Error saving medical record: Status Code: ${response.statusCode}');
-        print('Error saving medical record: Body: ${response.body}');
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('Error'),
-              content: Text('Failed to save medical record. Please try again later.'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
+        final errorResponse = jsonDecode(response.body);
+        final errorMessage = errorResponse['message'] ?? 'Failed to save medical record. Please try again later.';
+        _showDialog('Error', errorMessage);
       }
     } catch (error) {
-      print('Error saving medical record: $error');
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Error'),
-            content: Text('An error occurred while trying to save medical record. Please check your internet connection and try again.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
+      print('Error making request: $error');
+      _showDialog('Error', 'An error occurred while trying to save the medical record.');
     }
   }
+
+  Future<void> updateMedicalRecord() async {
+    if (!_formKey.currentState!.validate()) return;
+    _formKey.currentState!.save();
+
+    try {
+      final body = {
+        'patientId': widget.patientId,
+        'doctorId': doctorId ?? 0,
+        'diabetesType': diabetesType,
+        'hasDFU': hasDFU,
+        'isSmoker': isSmoker,
+        'hadDiabetes': hadDiabetes != null ? DateFormat('yyyy-MM-dd').format(hadDiabetes!) : null,
+        'bloodGroup': bloodGroup,
+      };
+
+      final response = await http.patch(
+        Uri.parse('http://192.168.1.29:8000/api/medical-record/${widget.medicalRecordId}'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200) {
+        _showDialog('Success', 'Medical record updated successfully!');
+      } else {
+        final errorResponse = jsonDecode(response.body);
+        final errorMessage = errorResponse['message'] ?? 'Failed to update medical record. Please try again later.';
+        _showDialog('Error', errorMessage);
+      }
+    } catch (error) {
+      print('Error making request: $error');
+      _showDialog('Error', 'An error occurred while trying to update the medical record.');
+    }
+  }
+
+
+
+  void _showDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -913,7 +905,7 @@ class _MedicalRecordPageState extends State<MedicalRecordPage> {
         ),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: ListView(
@@ -1040,8 +1032,23 @@ class _MedicalRecordPageState extends State<MedicalRecordPage> {
               ),
               SizedBox(height: 20),
               TextFormField(
-                initialValue: hadDiabetes != null ? DateFormat('yyyy-MM-dd').format(hadDiabetes!) : '',
+                controller: _dateController,
                 decoration: InputDecoration(labelText: 'When were you first diagnosed with diabetes?'),
+                onTap: () async {
+                  DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: hadDiabetes ?? DateTime.now(),
+                    firstDate: DateTime(1900),
+                    lastDate: DateTime.now(),
+                  );
+                  if (pickedDate != null) {
+                    setState(() {
+                      hadDiabetes = pickedDate;
+                      _dateController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
+                    });
+                  }
+                },
+                readOnly: true,
                 onSaved: (value) {
                   if (value != null && value.isNotEmpty) {
                     hadDiabetes = DateTime.parse(value);
@@ -1068,7 +1075,7 @@ class _MedicalRecordPageState extends State<MedicalRecordPage> {
                     backgroundColor: Colors.transparent,
                     shadowColor: Colors.transparent,
                   ),
-                  onPressed: saveOrUpdateMedicalRecord,
+                  onPressed: widget.medicalRecordId != null ? updateMedicalRecord : saveMedicalRecord,
                   child: const Text(
                     'Save medical record',
                     style: TextStyle(color: Colors.white),
