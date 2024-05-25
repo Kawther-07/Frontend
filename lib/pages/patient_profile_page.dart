@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/pages/components/CustomBottomNavigationBar.dart';
-import 'package:flutter_application_1/pages/dfu_record_page.dart';
-import 'package:flutter_application_1/pages/education_page.dart';
-import 'package:flutter_application_1/pages/stats.dart';
+import 'package:DoolabMobile/pages/components/CustomBottomNavigationBar.dart';
+import 'package:DoolabMobile/pages/dfu_record_page.dart';
+import 'package:DoolabMobile/pages/education_page.dart';
+import 'package:DoolabMobile/pages/stats.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
+import 'package:DoolabMobile/pages/components/my_texfield.dart';
 
 class PatientProfilePage extends StatefulWidget {
   final int patientId;
+  final int? doctorId;
   int currentIndex; 
   final Function(int) onItemTapped; 
 
   PatientProfilePage({
     Key? key, required this.patientId, 
+    this.doctorId,
     required this.currentIndex, 
     required this.onItemTapped
     }) : super(key: key);
@@ -33,8 +36,8 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
   void initState() {
     super.initState();
     fetchProfileData();
-    fetchMedicalRecordData(); 
-     _isTappedList = List.filled(8, false);
+    fetchMedicalRecordData(); // Fetch medical record data on page load
+    _isTappedList = List.filled(8, false);
   }
 
   Future<void> fetchProfileData() async {
@@ -42,11 +45,12 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
     final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
     final profileResponse = await http.get(
-      Uri.parse('http://192.168.1.69:8000/api/patient/profile/${widget.patientId}'),
+      Uri.parse('http://192.168.1.29:8000/api/patient/profile/${widget.patientId}'),
       headers: {
         'Authorization': 'Bearer $token',
       },
     );
+    print('Token: $token');
     print('Fetching profile data for patient ID: ${widget.patientId}');
     print('Profile Request URL: ${profileResponse.request?.url}');
     print('Profile Response Status Code: ${profileResponse.statusCode}');
@@ -68,10 +72,6 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
     print('Error fetching profile data: $error');
   }
 }
-
-
-
-
   void _navigateToPersonalProfilePage() async {
   await fetchProfileData(); // Fetch profile data before navigating
   Navigator.push(
@@ -86,32 +86,40 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
 }
 
 
+Future<void> fetchMedicalRecordData() async {
+    try {
+      final medicalRecordResponse = await http.get(
+        Uri.parse('http://192.168.1.29:8000/api/medical-record/${widget.patientId}'),
+      );
 
-  Future<void> fetchMedicalRecordData() async {
-  try {
-    final storage = FlutterSecureStorage();
-    final token = await storage.read(key: 'token');
-    final medicalRecordResponse = await http.get(
-      Uri.parse('http://192.168.1.69:8000/api/medical-record/${widget.patientId}'),
-      headers: {
-        'Authorization': 'Bearer $token',
-      },
-    );
-    if (medicalRecordResponse.statusCode == 200) {
-      final fetchedMedicalRecordData = jsonDecode(medicalRecordResponse.body)['medicalRecord'];
-      print('Medical record data fetched successfully: $fetchedMedicalRecordData');
-      setState(() {
-        medicalRecordData = fetchedMedicalRecordData;
-      });
-    } else {
-      print('Failed to fetch medical record: ${medicalRecordResponse.statusCode}');
-      throw Exception('Failed to fetch medical record: ${medicalRecordResponse.statusCode}');
+      if (medicalRecordResponse.statusCode == 200) {
+        final fetchedMedicalRecordData = jsonDecode(medicalRecordResponse.body)['medicalRecord'];
+        setState(() {
+          medicalRecordData = fetchedMedicalRecordData;
+        });
+      } else {
+        print('Failed to fetch medical record: ${medicalRecordResponse.statusCode}');
+        throw Exception('Failed to fetch medical record: ${medicalRecordResponse.statusCode}');
+      }
+    } catch (error) {
+      print('Error fetching medical record data: $error');
     }
-  } catch (error) {
-    print('Error fetching medical record data: $error');
   }
-}
 
+  void _navigateToMedicalRecordPage() async {
+    await fetchMedicalRecordData(); // Fetch medical record data before navigating
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MedicalRecordPage(
+          medicalRecordData: medicalRecordData,
+          patientId: widget.patientId,
+          doctorId: widget.doctorId, // Pass doctorId if available
+          medicalRecordId: medicalRecordData != null ? medicalRecordData!['id'] : null,
+        ),
+      ),
+    );
+  }
 
   void _handleItemTap(int index) {
   widget.onItemTapped(index);
@@ -171,11 +179,15 @@ Widget build(BuildContext context) {
                 onTap: () async {
                   await fetchMedicalRecordData();
                   Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MedicalRecordPage(medicalRecordData: medicalRecordData),
-                    ),
-                  );
+  context,
+  MaterialPageRoute(
+    builder: (context) => MedicalRecordPage(
+      medicalRecordData: medicalRecordData,
+      patientId: widget.patientId,
+      doctorId: widget.doctorId!,
+    ),
+  ),
+);
                 },
               ),
               buildButton(
@@ -186,7 +198,7 @@ Widget build(BuildContext context) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => DFURecordPage(imagePath: '',),
+                      builder: (context) => DFURecordPage(imageUrl: '',),
                     ),
                   );
                 },
@@ -436,46 +448,46 @@ void initState() {
                 ),
               SizedBox(height: 50),
               Stack(
-  children: [
-    GestureDetector(
-      onTap: () {
-        if (_formKey.currentState!.validate()) {
-          _formKey.currentState!.save();
-          // Check if the profile already exists (profileData is not null)
-          if (widget.profileData != null) {
-            // If the profile already exists, call updateProfileData
-            _updateProfileData();
-          } else {
-            // If the profile doesn't exist, call saveProfileData
-            _saveProfileData();
-          }
-        }
-      },
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 100),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [
-              Color(0xFFA67CE4),
-              Color(0xFF5915BD),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-          borderRadius: BorderRadius.circular(10), 
-        ),
-        child: Text(
-          'Save',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16, 
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    ),
-  ],
-)
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      if (_formKey.currentState!.validate()) {
+                        _formKey.currentState!.save();
+                        // Check if the profile already exists (profileData is not null)
+                        if (widget.profileData != null) {
+                          // If the profile already exists, call updateProfileData
+                          _updateProfileData();
+                        } else {
+                          // If the profile doesn't exist, call saveProfileData
+                          _saveProfileData();
+                        }
+                      }
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 100),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [
+                            Color(0xFFA67CE4),
+                            Color(0xFF5915BD),
+                          ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
+                        borderRadius: BorderRadius.circular(10), 
+                      ),
+                      child: Text(
+                        'Save profile',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16, 
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              )
             ],
           ),
         ),
@@ -508,7 +520,7 @@ void initState() {
   print('Request Body: $requestBody');
   final String jsonBody = jsonEncode(requestBody);
   print('JSON Body: $jsonBody');
-  final Uri uri = Uri.parse('http://192.168.1.69:8000/api/patient/profile');
+  final Uri uri = Uri.parse('http://192.168.1.29:8000/api/patient/profile');
   print('Request URI: $uri');
   try {
     final http.Response response = await http.post(
@@ -601,7 +613,7 @@ void initState() {
   }
   final String jsonBody = jsonEncode(requestBody);
   print('PATCH Request Body: $jsonBody');
-  final Uri uri = Uri.parse('http://192.168.1.69:8000/api/patient/updateprofile/$patientId');
+  final Uri uri = Uri.parse('http://192.168.1.29:8000/api/patient/updateprofile/$patientId');
   try {
     final http.Response response = await http.patch(
       uri,
@@ -706,149 +718,372 @@ void initState() {
   );
 }
 
-// Medical Record Page
-class MedicalRecordPage extends StatelessWidget {
-  final Map<String, dynamic>? medicalRecordData;
 
-  MedicalRecordPage({Key? key, required this.medicalRecordData}) : super(key: key);
+
+
+
+
+//------------------------------------------------------Medical Record------------------------------------------
+//--------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------
+
+class MedicalRecordPage extends StatefulWidget {
+  final Map<String, dynamic>? medicalRecordData;
+  final int patientId;
+  final int? doctorId;
+  final int? medicalRecordId;
+
+  MedicalRecordPage({
+    Key? key,
+    required this.medicalRecordData,
+    required this.patientId,
+    this.doctorId,
+    this.medicalRecordId,
+  }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Medical Record',
-          style: TextStyle(color: Colors.white), // Set the text color of the app bar title here
-      ),
-      flexibleSpace: Container(
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [
-              Color(0xFFA67CE4), // First color
-              Color(0xFF5915BD), // Second color
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-      ),
-      iconTheme: IconThemeData(
-        color: Colors.white, // Set the color of the back arrow here
-      ),
-    ),
-      body: Center(
-        child: medicalRecordData != null
-            ? medicalRecordData!.isEmpty
-                ? Text(
-                    'Medical record data is empty.',
-                    style: TextStyle(fontSize: 18),
-                  )
-                : Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildMedicalRecordField(
-                        label: 'Diabetes Type',
-                        value: '${medicalRecordData!['diabetesType']}',
-                        icon: Icons.edit,
-                        onPressed: () {
-                          // Handle edit action
-                        },
-                      ),
-                      _buildMedicalRecordField(
-                        label: 'Do you have DFU?',
-                        value: '${medicalRecordData!['hasDFU']}',
-                        icon: Icons.edit,
-                        onPressed: () {
-                          // Handle edit action
-                        },
-                      ),
-                      _buildMedicalRecordField(
-                        label: 'Do you smoke?',
-                        value: '${medicalRecordData!['isSmoker']}',
-                        icon: Icons.edit,
-                        onPressed: () {
-                          // Handle edit action
-                        },
-                      ),
-                      _buildMedicalRecordField(
-                        label: 'When did you get diagnosed with diabetes?',
-                        value: '${medicalRecordData!['hadDiabetes']}',
-                        icon: Icons.edit,
-                        onPressed: () {
-                          // Handle edit action
-                        },
-                      ),
-                      _buildMedicalRecordField(
-                        label: 'Blood group',
-                        value: '${medicalRecordData!['bloodGroup']}',
-                        icon: Icons.edit,
-                        onPressed: () {
-                          // Handle edit action
-                        },
-                      ),
-                      SizedBox(height: 25), // Add spacing between the last field and the button
-                      GestureDetector(
-                  onTap: () => (),
-                  child: Container(
-                    padding: const EdgeInsets.all(15),
-                    margin: const EdgeInsets.symmetric(horizontal: 85),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Color(0xFFA67CE4), // First color
-                          Color(0xFF5915BD), // Second color
-                        ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                      ),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Center(
-                      child: Text(
-                        "Save",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                    ],
-                  )
-            : CircularProgressIndicator(),
-      ),
+  _MedicalRecordPageState createState() => _MedicalRecordPageState();
+}
+
+class _MedicalRecordPageState extends State<MedicalRecordPage> {
+  final _formKey = GlobalKey<FormState>();
+  late bool hasDFU;
+  late bool isSmoker;
+  late String diabetesType;
+  late String bloodGroup;
+  late DateTime? hadDiabetes;
+  late TextEditingController _dateController;
+  int? doctorId;
+
+  @override
+  void initState() {
+    super.initState();
+    doctorId = widget.doctorId;
+    _initializeMedicalRecord();
+    _dateController = TextEditingController(
+      text: hadDiabetes != null ? DateFormat('yyyy-MM-dd').format(hadDiabetes!) : '',
     );
   }
 
-  Widget _buildMedicalRecordField({
-    required String label,
-    required String value,
-    required IconData icon,
-    required VoidCallback onPressed,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 1.0, right: 0), 
-      child: ListTile(
-        title: Text(
-          label,
-          style: const TextStyle(fontSize: 16, color: Color(0xFF5915BD)),
+  @override
+  void dispose() {
+    _dateController.dispose();
+    super.dispose();
+  }
+
+  void _initializeMedicalRecord() {
+    if (widget.medicalRecordData != null) {
+      final data = widget.medicalRecordData!;
+      hasDFU = data['hasDFU'] ?? false;
+      isSmoker = data['isSmoker'] ?? false;
+      diabetesType = data['diabetesType'] ?? '';
+      bloodGroup = data['bloodGroup'] ?? '';
+      hadDiabetes = data['hadDiabetes'] != null ? DateTime.parse(data['hadDiabetes']) : null;
+    } else {
+      hasDFU = false;
+      isSmoker = false;
+      diabetesType = '';
+      bloodGroup = '';
+      hadDiabetes = null;
+    }
+  }
+
+  Future<void> saveMedicalRecord() async {
+    if (!_formKey.currentState!.validate()) return;
+    _formKey.currentState!.save();
+
+    try {
+      final body = {
+        'patientId': widget.patientId,
+        'doctorId': doctorId ?? 0,
+        'diabetesType': diabetesType,
+        'hasDFU': hasDFU,
+        'isSmoker': isSmoker,
+        'hadDiabetes': hadDiabetes != null ? DateFormat('yyyy-MM-dd').format(hadDiabetes!) : null,
+        'bloodGroup': bloodGroup,
+      };
+
+      final response = await http.post(
+        Uri.parse('http://192.168.1.29:8000/api/medical-record'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 201) {
+        _showDialog('Success', 'Medical record saved successfully!');
+      } else {
+        final errorResponse = jsonDecode(response.body);
+        final errorMessage = errorResponse['message'] ?? 'Failed to save medical record. Please try again later.';
+        _showDialog('Error', errorMessage);
+      }
+    } catch (error) {
+      print('Error making request: $error');
+      _showDialog('Error', 'An error occurred while trying to save the medical record.');
+    }
+  }
+
+  Future<void> updateMedicalRecord() async {
+    if (!_formKey.currentState!.validate()) return;
+    _formKey.currentState!.save();
+
+    try {
+      final body = {
+        'patientId': widget.patientId,
+        'doctorId': doctorId ?? 0,
+        'diabetesType': diabetesType,
+        'hasDFU': hasDFU,
+        'isSmoker': isSmoker,
+        'hadDiabetes': hadDiabetes != null ? DateFormat('yyyy-MM-dd').format(hadDiabetes!) : null,
+        'bloodGroup': bloodGroup,
+      };
+
+      final response = await http.patch(
+        Uri.parse('http://192.168.1.29:8000/api/medical-record/${widget.medicalRecordId}'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200) {
+        _showDialog('Success', 'Medical record updated successfully!');
+      } else {
+        final errorResponse = jsonDecode(response.body);
+        final errorMessage = errorResponse['message'] ?? 'Failed to update medical record. Please try again later.';
+        _showDialog('Error', errorMessage);
+      }
+    } catch (error) {
+      print('Error making request: $error');
+      _showDialog('Error', 'An error occurred while trying to update the medical record.');
+    }
+  }
+
+
+
+  void _showDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    final initialDiabetesType = diabetesType.isEmpty ? null : diabetesType;
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Medical Record',
+          style: TextStyle(color: Colors.white),
         ),
-        subtitle: Container(
-          height: 27, // Set a fixed height for the TextFormField
-          child: TextFormField(
-            initialValue: value,
-            readOnly: false,
-            style: const TextStyle(fontSize: 15, color: Color(0xFF505050)), 
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [
+                Color(0xFFA67CE4),
+                Color(0xFF5915BD),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
           ),
         ),
-        trailing: IconButton(
-          icon: Icon(
-            icon,
-            color: Color(0xFF5915BD), 
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            children: <Widget>[
+              SizedBox(height: 40),
+              Text(
+                'What diabetes type do you have?',
+                style: TextStyle(fontSize: 16),
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: RadioListTile<String>(
+                      title: const Text('Type 1'),
+                      value: 'Type 1',
+                      groupValue: diabetesType,
+                      onChanged: (value) {
+                        setState(() {
+                          diabetesType = value!;
+                        });
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    child: RadioListTile<String>(
+                      title: const Text('Type 2'),
+                      value: 'Type 2',
+                      groupValue: diabetesType,
+                      onChanged: (value) {
+                        setState(() {
+                          diabetesType = value!;
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
+              Text(
+                'Do you have DFU?',
+                style: TextStyle(fontSize: 16),
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: RadioListTile<bool>(
+                      title: const Text('Yes'),
+                      value: true,
+                      groupValue: hasDFU,
+                      onChanged: (value) {
+                        setState(() {
+                          hasDFU = value!;
+                        });
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    child: RadioListTile<bool>(
+                      title: const Text('No'),
+                      value: false,
+                      groupValue: hasDFU,
+                      onChanged: (value) {
+                        setState(() {
+                          hasDFU = value!;
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
+              Text(
+                'Do you smoke?',
+                style: TextStyle(fontSize: 16),
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: RadioListTile<bool>(
+                      title: const Text('Yes'),
+                      value: true,
+                      groupValue: isSmoker,
+                      onChanged: (value) {
+                        setState(() {
+                          isSmoker = value!;
+                        });
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    child: RadioListTile<bool>(
+                      title: const Text('No'),
+                      value: false,
+                      groupValue: isSmoker,
+                      onChanged: (value) {
+                        setState(() {
+                          isSmoker = value!;
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
+              DropdownButtonFormField<String>(
+                value: bloodGroup.isEmpty ? null : bloodGroup,
+                decoration: InputDecoration(labelText: 'What is your blood group?'),
+                items: [
+                  DropdownMenuItem(value: 'A+', child: Text('A+')),
+                  DropdownMenuItem(value: 'A-', child: Text('A-')),
+                  DropdownMenuItem(value: 'B+', child: Text('B+')),
+                  DropdownMenuItem(value: 'B-', child: Text('B-')),
+                  DropdownMenuItem(value: 'AB+', child: Text('AB+')),
+                  DropdownMenuItem(value: 'AB-', child: Text('AB-')),
+                  DropdownMenuItem(value: 'O+', child: Text('O+')),
+                  DropdownMenuItem(value: 'O-', child: Text('O-')),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    bloodGroup = value!;
+                  });
+                },
+                onSaved: (value) => bloodGroup = value ?? '',
+              ),
+              SizedBox(height: 20),
+              TextFormField(
+                controller: _dateController,
+                decoration: InputDecoration(labelText: 'When were you first diagnosed with diabetes?'),
+                onTap: () async {
+                  DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: hadDiabetes ?? DateTime.now(),
+                    firstDate: DateTime(1900),
+                    lastDate: DateTime.now(),
+                  );
+                  if (pickedDate != null) {
+                    setState(() {
+                      hadDiabetes = pickedDate;
+                      _dateController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
+                    });
+                  }
+                },
+                readOnly: true,
+                onSaved: (value) {
+                  if (value != null && value.isNotEmpty) {
+                    hadDiabetes = DateTime.parse(value);
+                  } else {
+                    hadDiabetes = null;
+                  }
+                },
+              ),
+              SizedBox(height: 80),
+              Container(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [
+                      Color(0xFFA67CE4),
+                      Color(0xFF5915BD),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                  ),
+                  onPressed: widget.medicalRecordId != null ? updateMedicalRecord : saveMedicalRecord,
+                  child: const Text(
+                    'Save medical record',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
           ),
-          onPressed: onPressed,
         ),
       ),
     );

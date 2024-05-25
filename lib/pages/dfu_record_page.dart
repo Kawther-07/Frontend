@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
+import 'package:http/http.dart' as http;
+
 
 class DFURecordPage extends StatelessWidget {
-  final String imagePath;
+  final String imageUrl;
 
-  const DFURecordPage({Key? key, required this.imagePath}) : super(key: key);
+  const DFURecordPage({Key? key, required this.imageUrl}) : super(key: key);
 
- @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -18,8 +20,8 @@ class DFURecordPage extends StatelessWidget {
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Color(0xFFA67CE4), 
-                Color(0xFF5915BD), 
+                Color(0xFFA67CE4),
+                Color(0xFF5915BD),
               ],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
@@ -27,7 +29,7 @@ class DFURecordPage extends StatelessWidget {
           ),
         ),
         iconTheme: const IconThemeData(
-          color: Colors.white, 
+          color: Colors.white,
         ),
       ),
       body: Column(
@@ -45,18 +47,34 @@ class DFURecordPage extends StatelessWidget {
               alignment: Alignment.topLeft,
               child: Column(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 20, top: 10),
-                    child: Image.file(
-                      File(imagePath),
-                      fit: BoxFit.cover,
-                      width: 250,
-                      height: 250,
+                  if (imageUrl.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 20, top: 10),
+                      child: Image.network(
+                        imageUrl,
+                        fit: BoxFit.cover,
+                        width: 250,
+                        height: 250,
+                        errorBuilder: (context, error, stackTrace) => Text(
+                          'Error loading image',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
+                    )
+                  else
+                    Padding(
+                      padding: const EdgeInsets.only(left: 50, top: 20),
+                      child: Text(
+                        "You haven't taken any picture yet",
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
                     ),
-                  ),
                   const SizedBox(height: 30),
                   const Padding(
-                    padding: EdgeInsets.only(right: 182),
+                    padding: EdgeInsets.only(right: 207),
                     child: Text(
                       'View:',
                       style: TextStyle(fontSize: 16),
@@ -64,7 +82,7 @@ class DFURecordPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 25),
                   const Padding(
-                    padding: EdgeInsets.only(right: 125),
+                    padding: EdgeInsets.only(right: 148),
                     child: Text(
                       'Description:',
                       style: TextStyle(fontSize: 16),

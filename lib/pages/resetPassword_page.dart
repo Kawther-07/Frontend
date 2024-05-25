@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/pages/components/my_button.dart';
-import 'package:flutter_application_1/pages/components/my_texfield.dart';
-import 'package:flutter_application_1/pages/home_page.dart';
+import 'package:DoolabMobile/pages/components/my_button.dart';
+import 'package:DoolabMobile/pages/components/my_texfield.dart';
+import 'package:DoolabMobile/pages/home_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -18,7 +18,7 @@ Future<void> resetPassword(BuildContext context) async {
   final String? email = PasswordResetManager.userEmail;
 
   if (email != null) {
-    final Uri uri = Uri.parse('http://192.168.1.69:8000/api/reset-password');
+    final Uri uri = Uri.parse('http://192.168.1.29:8000/api/reset-password');
     final http.Response response = await http.post(
       uri,
       headers: <String, String>{

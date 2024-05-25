@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/pages/components/my_button.dart';
+import 'package:DoolabMobile/pages/components/my_button.dart';
 import 'forgot_password.dart'; 
 import 'resetPassword_page.dart';
 import 'password_reset_manager.dart'; 

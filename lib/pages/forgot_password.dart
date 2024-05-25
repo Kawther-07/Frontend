@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/pages/components/my_button.dart';
-import 'package:flutter_application_1/pages/components/my_texfield.dart';
+import 'package:DoolabMobile/pages/components/my_button.dart';
+import 'package:DoolabMobile/pages/components/my_texfield.dart';
 import 'verification_page.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -21,7 +21,7 @@ class ForgotPassword extends StatelessWidget {
     // Store the email in PasswordResetManager
     PasswordResetManager.userEmail = email;
 
-    final Uri uri = Uri.parse('http://192.168.1.69:8000/api/forgot-password');
+    final Uri uri = Uri.parse('http://192.168.1.29:8000/api/forgot-password');
     final http.Response response = await http.post(
       uri,
       headers: <String, String>{
