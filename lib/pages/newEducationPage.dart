@@ -93,8 +93,8 @@ class _NewEducationPageState extends State<NewEducationPage> {
                 );
               },
               child: Container(
-                padding: const EdgeInsets.all(12),
-                margin: const EdgeInsets.symmetric(horizontal: 45),
+                padding: const EdgeInsets.all(15),
+                margin: const EdgeInsets.symmetric(horizontal: 25),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [
