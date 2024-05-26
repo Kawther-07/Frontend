@@ -75,9 +75,9 @@ class _RegisterPageState extends State<RegisterPage> {
         final Map<String, dynamic> responseData = jsonDecode(response.body);
         final int? doctorId = responseData['doctor_id']; // Parse as int
         setState(() {
-          selectedDoctorId = doctorId.toString(); // Convert int to String
-          print('Selected Doctor ID: $selectedDoctorId');
-        });
+  selectedDoctorId = doctorId.toString(); // Convert int to String
+  print('Selected Doctor ID: $selectedDoctorId');
+});
       } else {
         print('Failed to fetch doctor ID: ${response.statusCode}');
         print('Response body: ${response.body}');
@@ -89,13 +89,17 @@ class _RegisterPageState extends State<RegisterPage> {
 
   void registerUser(BuildContext context) async {
   final Uri uri = Uri.parse('http://192.168.1.29:8000/api/patient/register');
+
+  // Parse selectedDoctorId to int or set to null if it's empty or null
+  int? doctorId = selectedDoctorId != null && selectedDoctorId!.isNotEmpty ? int.tryParse(selectedDoctorId!) : null;
+
   final Map<String, dynamic> userData = {
     'first_name': fnameController.text,
     'last_name': lnameController.text,
     'phone': phoneController.text,
     'email': emailController.text,
     'password': passwordController.text,
-    'selected_doctor': selectedDoctorId ?? '',
+    'selected_doctor': doctorId, // Pass doctorId here
   };
 
   try {
@@ -119,7 +123,7 @@ class _RegisterPageState extends State<RegisterPage> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => HomePage(patientId: patientId),
+            builder: (context) => HomePage(patientId: patientId, doctorId: doctorId), // Pass doctorId to HomePage
           ),
         );
       } else {
@@ -187,6 +191,7 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 }
+
 
   void navigateToSignInPage(BuildContext context) {
     Navigator.of(context).push(
@@ -274,29 +279,29 @@ class _RegisterPageState extends State<RegisterPage> {
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                   child: DropdownButtonFormField<String>(
-                    value: selectedDoctorName,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedDoctorName = value!;
-                        // Extract first name and last name from selectedDoctorName if needed
-                        List<String> nameParts = value.split(' ');
-                        String firstName = nameParts[0];
-                        String lastName = nameParts.length > 1 ? nameParts[1] : '';
-                        fetchDoctorId(firstName, lastName); // Call method to fetch doctor ID
-                      });
-                    },
-                    items: doctors.map((doctor) {
-                      return DropdownMenuItem<String>(
-                        value: doctor['name'], // Ensure doctor['name'] is a String
-                        child: Text(doctor['name']),
-                      );
-                    }).toList(),
-                    decoration: InputDecoration(
-                      hintText: 'Select Doctor',
-                      hintStyle: TextStyle(color: Colors.grey),
-                      border: InputBorder.none,
-                    ),
-                  ),
+  value: selectedDoctorName,
+  onChanged: (value) {
+    setState(() {
+      selectedDoctorName = value!;
+      // Extract first name and last name from selectedDoctorName if needed
+      List<String> nameParts = value.split(' ');
+      String firstName = nameParts[0];
+      String lastName = nameParts.length > 1 ? nameParts[1] : '';
+      fetchDoctorId(firstName, lastName); // Call method to fetch doctor ID
+    });
+  },
+  items: doctors.map((doctor) {
+    return DropdownMenuItem<String>(
+      value: doctor['name'], // Ensure doctor['name'] is a String
+      child: Text(doctor['name']),
+    );
+  }).toList(),
+  decoration: InputDecoration(
+    hintText: 'Select Doctor',
+    hintStyle: TextStyle(color: Colors.grey),
+    border: InputBorder.none,
+  ),
+),
                 ),
 
                 SizedBox(height: 50),

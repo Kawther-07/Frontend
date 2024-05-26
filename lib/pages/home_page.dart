@@ -30,6 +30,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    print('Doctor ID in HomePage: ${widget.doctorId}');
     fetchUserName(); // Fetch user name when HomePage is initialized
   }
 
