@@ -38,7 +38,7 @@ class _SplashScreenState extends State<SplashScreen> {
           child: Lottie.asset('assets/Flow6.json'),
         ),
       ),
-      nextScreen: NewEducationPage(),
+      nextScreen: NewWelcomePage(),
       splashIconSize: 600,
     );
   }

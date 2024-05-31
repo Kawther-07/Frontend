@@ -14,7 +14,7 @@ class AuthService {
     TextEditingController passwordController,
     String? selectedDoctorId,
   ) async {
-    final Uri registerUri = Uri.parse('http://192.168.1.29:8000/api/patient/register');
+    final Uri registerUri = Uri.parse('http://192.168.131.120:8000/api/patient/register');
     final Map<String, dynamic> userData = {
       'first_name': fnameController.text,
       'last_name': lnameController.text,
@@ -94,7 +94,7 @@ class AuthService {
 
 
   static Future<void> signInUser(BuildContext context, TextEditingController emailController, TextEditingController passwordController) async {
-    final Uri loginUri = Uri.parse('http://192.168.1.29:8000/api/patient/login');
+    final Uri loginUri = Uri.parse('http://192.168.131.120:8000/api/patient/login');
     final Map<String, dynamic> userData = {
       'email': emailController.text,
       'password': passwordController.text,
@@ -114,7 +114,7 @@ class AuthService {
         final token = responseData['token'];
 
         // Request to fetch profile information
-        final Uri profileUri = Uri.parse('http://192.168.1.29:8000/api/patient/profile');
+        final Uri profileUri = Uri.parse('http://192.168.131.120:8000/api/patient/profile');
         final http.Response profileResponse = await http.get(
           profileUri,
           headers: <String, String>{
@@ -186,7 +186,7 @@ class AuthService {
       prefs.remove('birth_date');
 
       // Make logout request
-      final Uri logoutUri = Uri.parse('http://192.168.1.29:8000/api/patient/logout');
+      final Uri logoutUri = Uri.parse('http://192.168.131.120:8000/api/patient/logout');
 
       final http.Response response = await http.post(
         logoutUri,
