@@ -34,7 +34,7 @@ class CameraScreen extends StatelessWidget {
         final downloadUrl = await snapshot.ref.getDownloadURL();
 
         // Save the image URL to the server (Express/Node.js backend)
-        final uri = Uri.parse('http://192.168.1.29:8000/api/dfu-record/upload');
+        final uri = Uri.parse('http://192.168.131.120:8000/api/dfu-record/upload');
         final response = await http.post(
           uri,
           body: json.encode({

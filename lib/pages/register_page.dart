@@ -35,7 +35,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Future<void> fetchDoctorList() async {
     try {
-      final response = await http.get(Uri.parse('http://192.168.1.29:8000/api/doctors'));
+      final response = await http.get(Uri.parse('http://192.168.131.120:8000/api/doctors'));
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = jsonDecode(response.body);
         final List<dynamic> doctorsData = responseData['doctors'];
@@ -58,7 +58,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Future<void> fetchDoctorId(String firstName, String lastName) async {
     try {
-      final Uri uri = Uri.parse('http://192.168.1.29:8000/api/doctor/id')
+      final Uri uri = Uri.parse('http://192.168.131.120:8000/api/doctor/id')
           .replace(queryParameters: {
         'first_name': firstName,
         'last_name': lastName,
@@ -87,11 +87,145 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
-  void registerUser(BuildContext context) async {
-  final Uri uri = Uri.parse('http://192.168.1.29:8000/api/patient/register');
+//   void registerUser(BuildContext context) async {
+//   final Uri uri = Uri.parse('http://192.168.131.120:8000/api/patient/register');
+
+//   // Parse selectedDoctorId to int or set to null if it's empty or null
+//   int? doctorId = selectedDoctorId != null && selectedDoctorId!.isNotEmpty ? int.tryParse(selectedDoctorId!) : null;
+
+//   final Map<String, dynamic> userData = {
+//     'first_name': fnameController.text,
+//     'last_name': lnameController.text,
+//     'phone': phoneController.text,
+//     'email': emailController.text,
+//     'password': passwordController.text,
+//     'selected_doctor': doctorId, // Pass doctorId here
+//   };
+
+//   try {
+//     final http.Response response = await http.post(
+//       uri,
+//       headers: <String, String>{
+//         'Content-Type': 'application/json; charset=UTF-8',
+//       },
+//       body: jsonEncode(userData),
+//     );
+
+//     if (response.statusCode == 200) {
+//       final Map<String, dynamic> responseData = jsonDecode(response.body);
+//       final String? message = responseData['message'];
+//       final int? patientId = responseData['id'];
+
+//       if (message == 'Patient registered successfully' && patientId != null) {
+//         final storage = FlutterSecureStorage();
+//         await storage.write(key: 'token', value: ''); // Replace with your token logic
+
+//         Navigator.pushReplacement(
+//           context,
+//           MaterialPageRoute(
+//             builder: (context) => HomePage(patientId: patientId, doctorId: doctorId), // Pass doctorId to HomePage
+//           ),
+//         );
+//       } else {
+//         // Handle unexpected response or message scenario
+//         print('Unexpected response data: $responseData');
+//         showDialog(
+//           context: context,
+//           builder: (BuildContext context) {
+//             return AlertDialog(
+//               title: const Text('Error'),
+//               content: const Text('Failed to register user.'),
+//               actions: <Widget>[
+//                 TextButton(
+//                   onPressed: () {
+//                     Navigator.of(context).pop();
+//                   },
+//                   child: const Text('OK'),
+//                 ),
+//               ],
+//             );
+//           },
+//         );
+//       }
+//     } else {
+//       // Handle other status codes (e.g., 400, 500)
+//       print('Registration failed with status code: ${response.statusCode}');
+//       print('Response body: ${response.body}');
+      
+//       showDialog(
+//         context: context,
+//         builder: (BuildContext context) {
+//           return AlertDialog(
+//             title: const Text('Error'),
+//             content: const Text('Failed to register user.'),
+//             actions: <Widget>[
+//               TextButton(
+//                 onPressed: () {
+//                   Navigator.of(context).pop();
+//                 },
+//                 child: const Text('OK'),
+//               ),
+//             ],
+//           );
+//         },
+//       );
+//     }
+//   } catch (e) {
+//     print('Error during registration: $e');
+//     showDialog(
+//       context: context,
+//       builder: (BuildContext context) {
+//         return AlertDialog(
+//           title: const Text('Error'),
+//           content: const Text('Failed to register user.'),
+//           actions: <Widget>[
+//             TextButton(
+//               onPressed: () {
+//                 Navigator.of(context).pop();
+//               },
+//               child: const Text('OK'),
+//             ),
+//           ],
+//         );
+//       },
+//     );
+//   }
+// }
+
+
+
+void registerUser(BuildContext context) async {
+  final Uri uri = Uri.parse('http://192.168.131.120:8000/api/patient/register');
+
+  // Check if all required fields are filled
+  if (fnameController.text.isEmpty ||
+      lnameController.text.isEmpty ||
+      emailController.text.isEmpty ||
+      passwordController.text.isEmpty ||
+      selectedDoctorId == null) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: const Text('Please fill out all required fields.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+    return; // Exit function early
+  }
 
   // Parse selectedDoctorId to int or set to null if it's empty or null
-  int? doctorId = selectedDoctorId != null && selectedDoctorId!.isNotEmpty ? int.tryParse(selectedDoctorId!) : null;
+  int? doctorId =
+      selectedDoctorId != null && selectedDoctorId!.isNotEmpty ? int.tryParse(selectedDoctorId!) : null;
 
   final Map<String, dynamic> userData = {
     'first_name': fnameController.text,
@@ -123,7 +257,7 @@ class _RegisterPageState extends State<RegisterPage> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => HomePage(patientId: patientId, doctorId: doctorId), // Pass doctorId to HomePage
+            builder: (context) => HomePage(patientId: patientId, doctorId: doctorId, isNewRegistration: true,), // Pass doctorId to HomePage
           ),
         );
       } else {
@@ -134,7 +268,50 @@ class _RegisterPageState extends State<RegisterPage> {
           builder: (BuildContext context) {
             return AlertDialog(
               title: const Text('Error'),
-              content: const Text('Failed to register user.'),
+              content: Text(message ?? 'Failed to register user.'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } else if (response.statusCode == 400) {
+      final Map<String, dynamic> responseData = jsonDecode(response.body);
+      final String? errorMessage = responseData['error'];
+
+      if (errorMessage == 'Email already exists') {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Error'),
+              content: const Text('Email already exists. Please try a different email.'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        // Handle other 400 errors if needed
+        print('Registration failed with status code 400');
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Error'),
+              content: const Text('Failed to register user. Please try again later.'),
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
@@ -148,16 +325,14 @@ class _RegisterPageState extends State<RegisterPage> {
         );
       }
     } else {
-      // Handle other status codes (e.g., 400, 500)
+      // Handle other status codes (e.g., 500)
       print('Registration failed with status code: ${response.statusCode}');
-      print('Response body: ${response.body}');
-      
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text('Error'),
-            content: const Text('Failed to register user.'),
+            content: const Text('Failed to register user. Please try again later.'),
             actions: <Widget>[
               TextButton(
                 onPressed: () {
@@ -177,7 +352,7 @@ class _RegisterPageState extends State<RegisterPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Error'),
-          content: const Text('Failed to register user.'),
+          content: const Text('Failed to register user. Please try again later.'),
           actions: <Widget>[
             TextButton(
               onPressed: () {

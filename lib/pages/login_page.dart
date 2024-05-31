@@ -30,7 +30,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 //       throw 'Please fill in both email and password fields.';
 //     }
 
-//     final Uri uri = Uri.parse('http://192.168.1.29:8000/api/patient/login');
+//     final Uri uri = Uri.parse('http://192.168.131.120:8000/api/patient/login');
 //     final http.Response response = await http.post(
 //       uri,
 //       headers: <String, String>{
@@ -270,7 +270,7 @@ class LoginPage extends StatelessWidget {
         throw 'Please fill in both email and password fields.';
       }
 
-      final Uri uri = Uri.parse('http://192.168.1.29:8000/api/patient/login');
+      final Uri uri = Uri.parse('http://192.168.131.120:8000/api/patient/login');
       final http.Response response = await http.post(
         uri,
         headers: <String, String>{

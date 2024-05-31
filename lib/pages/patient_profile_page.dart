@@ -45,7 +45,7 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
     final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
     final profileResponse = await http.get(
-      Uri.parse('http://192.168.1.29:8000/api/patient/profile/${widget.patientId}'),
+      Uri.parse('http://192.168.131.120:8000/api/patient/profile/${widget.patientId}'),
       headers: {
         'Authorization': 'Bearer $token',
       },
@@ -89,7 +89,7 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
 Future<void> fetchMedicalRecordData() async {
     try {
       final medicalRecordResponse = await http.get(
-        Uri.parse('http://192.168.1.29:8000/api/medical-record/${widget.patientId}'),
+        Uri.parse('http://192.168.131.120:8000/api/medical-record/${widget.patientId}'),
       );
 
       if (medicalRecordResponse.statusCode == 200) {
@@ -133,6 +133,7 @@ Future<void> fetchMedicalRecordData() async {
   @override
 Widget build(BuildContext context) {
   return Scaffold(
+    backgroundColor: Color(0xFFF7F1FF),
     appBar: AppBar(
       title: Text(
         'More',
@@ -220,13 +221,13 @@ Widget build(BuildContext context) {
                   );
                 },
               ),
-              buildButton(
-                index: 4,
-                icon: Icons.health_and_safety_rounded,
-                label: "Your plan",
-                onTap: () {
-                },
-              ),
+              // buildButton(
+              //   index: 4,
+              //   icon: Icons.health_and_safety_rounded,
+              //   label: "Your plan",
+              //   onTap: () {
+              //   },
+              // ),
               buildButton(
                 index: 5,
                 icon: Icons.school,
@@ -524,7 +525,7 @@ void initState() {
   print('Request Body: $requestBody');
   final String jsonBody = jsonEncode(requestBody);
   print('JSON Body: $jsonBody');
-  final Uri uri = Uri.parse('http://192.168.1.29:8000/api/patient/profile');
+  final Uri uri = Uri.parse('http://192.168.131.120:8000/api/patient/profile');
   print('Request URI: $uri');
   try {
     final http.Response response = await http.post(
@@ -559,6 +560,7 @@ void initState() {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
+            title: Text('Success'),
             content: Text('Profile data saved successfully!'),
             actions: [
               TextButton(
@@ -617,7 +619,7 @@ void initState() {
   }
   final String jsonBody = jsonEncode(requestBody);
   print('PATCH Request Body: $jsonBody');
-  final Uri uri = Uri.parse('http://192.168.1.29:8000/api/patient/updateprofile/$patientId');
+  final Uri uri = Uri.parse('http://192.168.131.120:8000/api/patient/updateprofile/$patientId');
   try {
     final http.Response response = await http.patch(
       uri,
@@ -796,7 +798,7 @@ class _MedicalRecordPageState extends State<MedicalRecordPage> {
     print('Request Body: $body'); // Print request body
 
     final response = await http.post(
-      Uri.parse('http://192.168.1.29:8000/api/medical-record'),
+      Uri.parse('http://192.168.131.120:8000/api/medical-record'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(body),
     );
@@ -834,7 +836,7 @@ class _MedicalRecordPageState extends State<MedicalRecordPage> {
 
     final String jsonBody = jsonEncode(body);
     print('PATCH Request Body: $jsonBody');
-    final url = 'http://192.168.1.29:8000/api/medical-record/patient/${widget.patientId}';
+    final url = 'http://192.168.131.120:8000/api/medical-record/patient/${widget.patientId}';
     print('PATCH URL: $url');
 
     final response = await http.patch(
