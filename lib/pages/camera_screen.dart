@@ -7,9 +7,9 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:DoolabMobile/pages/dfu_record_page.dart';
 
 class CameraScreen extends StatelessWidget {
-  final int medicalRecordId;
+  final int patientId;
 
-  CameraScreen({Key? key, required this.medicalRecordId}) : super(key: key);
+  CameraScreen({Key? key, required this.patientId}) : super(key: key);
 
   Future<void> _takePicture(BuildContext context) async {
     final imagePicker = ImagePicker();
@@ -21,37 +21,30 @@ class CameraScreen extends StatelessWidget {
         // Upload the image to Firebase Storage
         final storageRef = FirebaseStorage.instance.ref().child('images/${DateTime.now().toIso8601String()}.jpg');
         final uploadTask = storageRef.putFile(imageFile);
+        // Wait for upload to complete
+        await uploadTask;
 
-        // Show loading dialog
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => Center(child: CircularProgressIndicator()),
-        );
-
-        // Get the download URL of the uploaded image
-        final snapshot = await uploadTask.whenComplete(() {});
-        final downloadUrl = await snapshot.ref.getDownloadURL();
+        // After upload completes, get the download URL
+        final downloadUrl = await storageRef.getDownloadURL();
+        print('Image URL: $downloadUrl');
 
         // Save the image URL to the server (Express/Node.js backend)
-        final uri = Uri.parse('http://192.168.131.120:8000/api/dfu-record/upload');
+        final uri = Uri.parse('http://192.168.1.9:8000/uploadPic');
         final response = await http.post(
           uri,
           body: json.encode({
-            'medicalRecordId': medicalRecordId,
+            'patientId': patientId,
             'imageUrl': downloadUrl,
           }),
           headers: {'Content-Type': 'application/json'},
         );
 
-        // Close loading dialog
-        Navigator.of(context).pop();
-
         if (response.statusCode == 200) {
+          // Navigate to DFURecordPage upon successful upload
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => DFURecordPage(imageUrl: downloadUrl),
+              builder: (context) => DFURecordPage(patientId: patientId),
             ),
           );
         } else {
@@ -59,8 +52,8 @@ class CameraScreen extends StatelessWidget {
         }
       }
     } catch (e) {
-      print('Error taking picture: $e');
-      _showErrorDialog(context, 'Error taking picture: $e');
+      print('Error taking picture or uploading: $e');
+      _showErrorDialog(context, 'Error taking picture or uploading: $e');
     }
   }
 

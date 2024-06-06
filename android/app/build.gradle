@@ -31,7 +31,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.DoolabMobile"
-        minSdkVersion 21  // Ensure it's at least 21 for Multidex support
+        minSdkVersion 23  // Ensure it's at least 21 for Multidex support
         targetSdkVersion 34  // Adjust to your target SDK version
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
@@ -64,4 +64,5 @@ flutter {
 
 dependencies {
     implementation 'androidx.multidex:multidex:2.0.1'
+    implementation platform('com.google.firebase:firebase-bom:33.1.0')
 }

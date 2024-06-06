@@ -13,8 +13,24 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await initializeFirebase();
   runApp(MyApp());
+}
+
+Future<void> initializeFirebase() async {
+  try {
+    print('Initializing Firebase...');
+    await Firebase.initializeApp(options: const FirebaseOptions(
+    apiKey: 'AIzaSyAheCuLE93A382_8PTCOHR5fcZKFSYq8gs',
+    appId: '1:821505640316:android:4172739b8f7eaf413bc6f9',
+    messagingSenderId: '821505640316',
+    projectId: 'doolabmobile',
+    storageBucket: 'doolabmobile.appspot.com',
+  ));
+    print('Firebase Initialized');
+  } catch (e) {
+    print('Error initializing Firebase: $e');
+  }
 }
 class MyApp extends StatelessWidget {
   @override

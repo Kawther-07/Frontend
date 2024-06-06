@@ -15,11 +15,14 @@ class PatientProfilePage extends StatefulWidget {
   int currentIndex; 
   final Function(int) onItemTapped; 
 
+  final Map<String, dynamic>? dfuRecord;
+
   PatientProfilePage({
     Key? key, required this.patientId, 
     this.doctorId,
     required this.currentIndex, 
-    required this.onItemTapped
+    required this.onItemTapped,
+    this.dfuRecord,
     }) : super(key: key);
 
   @override
@@ -32,20 +35,63 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
   final storage = FlutterSecureStorage();
   late List<bool> _isTappedList;
 
+  Map<String, dynamic>? latestDfuRecord;
+
   @override
   void initState() {
     super.initState();
     fetchProfileData();
     fetchMedicalRecordData(); // Fetch medical record data on page load
+    fetchLatestDfuRecord();
     _isTappedList = List.filled(8, false);
   }
+
+
+  Future<void> fetchLatestDfuRecord() async {
+  try {
+    final dfuResponse = await http.get(
+      Uri.parse('http://192.168.1.9:8000/api/dfu-record/${widget.patientId}'),
+    );
+
+    print('Response status code: ${dfuResponse.statusCode}');
+    print('Response body: ${dfuResponse.body}');
+
+    if (dfuResponse.statusCode == 200) {
+      final fetchedDfuRecord = jsonDecode(dfuResponse.body)['dfuRecord'];
+      setState(() {
+        latestDfuRecord = fetchedDfuRecord;
+      });
+    } else {
+      print('Failed to fetch latest DFU record: ${dfuResponse.statusCode}');
+      throw Exception('Failed to fetch latest DFU record: ${dfuResponse.statusCode}');
+    }
+  } catch (error) {
+    print('Error fetching latest DFU record: $error');
+    throw error; // Rethrow the error to propagate it
+  }
+}
+
+  void _navigateToDfuRecordPage() async {
+    print('Navigating to DFU Record Page...');
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DFURecordPage(
+          patientId: widget.patientId,
+          dfuRecord: latestDfuRecord, // Pass the fetched DFU record
+        ),
+      ),
+    );
+  }
+
 
   Future<void> fetchProfileData() async {
   try {
     final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
     final profileResponse = await http.get(
-      Uri.parse('http://192.168.131.120:8000/api/patient/profile/${widget.patientId}'),
+      Uri.parse('http://192.168.1.9:8000/api/patient/profile/${widget.patientId}'),
       headers: {
         'Authorization': 'Bearer $token',
       },
@@ -89,7 +135,7 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
 Future<void> fetchMedicalRecordData() async {
     try {
       final medicalRecordResponse = await http.get(
-        Uri.parse('http://192.168.131.120:8000/api/medical-record/${widget.patientId}'),
+        Uri.parse('http://192.168.1.9:8000/api/medical-record/${widget.patientId}'),
       );
 
       if (medicalRecordResponse.statusCode == 200) {
@@ -196,18 +242,21 @@ Widget build(BuildContext context) {
                 },
               ),
               buildButton(
-                index: 2,
-                icon: Icons.description,
-                label: "DFU Record",
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => DFURecordPage(imageUrl: '',),
-                    ),
-                  );
-                },
-              ),
+  index: 2,
+  icon: Icons.description,
+  label: "DFU Record",
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DFURecordPage(
+          patientId: widget.patientId,
+          dfuRecord: latestDfuRecord, // Pass the fetched DFU record here
+        ),
+      ),
+    );
+  },
+),
               buildButton(
                 index: 3,
                 icon: Icons.bar_chart,
@@ -525,7 +574,7 @@ void initState() {
   print('Request Body: $requestBody');
   final String jsonBody = jsonEncode(requestBody);
   print('JSON Body: $jsonBody');
-  final Uri uri = Uri.parse('http://192.168.131.120:8000/api/patient/profile');
+  final Uri uri = Uri.parse('http://192.168.1.9:8000/api/patient/profile');
   print('Request URI: $uri');
   try {
     final http.Response response = await http.post(
@@ -619,7 +668,7 @@ void initState() {
   }
   final String jsonBody = jsonEncode(requestBody);
   print('PATCH Request Body: $jsonBody');
-  final Uri uri = Uri.parse('http://192.168.131.120:8000/api/patient/updateprofile/$patientId');
+  final Uri uri = Uri.parse('http://192.168.1.9:8000/api/patient/updateprofile/$patientId');
   try {
     final http.Response response = await http.patch(
       uri,
@@ -798,7 +847,7 @@ class _MedicalRecordPageState extends State<MedicalRecordPage> {
     print('Request Body: $body'); // Print request body
 
     final response = await http.post(
-      Uri.parse('http://192.168.131.120:8000/api/medical-record'),
+      Uri.parse('http://192.168.1.9:8000/api/medical-record'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(body),
     );
@@ -836,7 +885,7 @@ class _MedicalRecordPageState extends State<MedicalRecordPage> {
 
     final String jsonBody = jsonEncode(body);
     print('PATCH Request Body: $jsonBody');
-    final url = 'http://192.168.131.120:8000/api/medical-record/patient/${widget.patientId}';
+    final url = 'http://192.168.1.9:8000/api/medical-record/patient/${widget.patientId}';
     print('PATCH URL: $url');
 
     final response = await http.patch(

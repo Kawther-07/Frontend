@@ -153,7 +153,7 @@
 //   List<Map<String, dynamic>> resources = [];
 
 // Future<void> fetchResources() async {
-//   final url = 'http://192.168.131.120:8000/api/educational-resources';
+//   final url = 'http://192.168.1.9:8000/api/educational-resources';
 //   final response = await http.get(Uri.parse(url));
 
 //   if (response.statusCode == 200) {

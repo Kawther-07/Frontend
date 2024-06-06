@@ -31,6 +31,7 @@ class _HomePageState extends State<HomePage> {
   String _userName = '';
   late Timer _timer;
   int _tipIndex = 0;
+  Map<String, dynamic>? fetchedDfuRecord;
   List<String> _tips = [
     'Keep your feet clean and dry.',
     'Check your feet daily for any sores or wounds.',
@@ -86,7 +87,7 @@ void dispose() {
 
   Future<void> fetchUserName() async {
     try {
-      final Uri uri = Uri.parse('http://192.168.131.120:8000/api/patient/name/${widget.patientId}');
+      final Uri uri = Uri.parse('http://192.168.1.9:8000/api/patient/name/${widget.patientId}');
       final http.Response response = await http.get(uri);
       print('Response status code: ${response.statusCode}');
       print('Response body: ${response.body}');
@@ -124,7 +125,7 @@ void dispose() {
   //       final String downloadUrl = await snapshot.ref.getDownloadURL();
 
   //       // Send downloadUrl to backend
-  //       final Uri uri = Uri.parse('http://192.168.131.120:8000/api/dfu-record/upload');
+  //       final Uri uri = Uri.parse('http://192.168.1.9:8000/api/dfu-record/upload');
   //       final http.Response response = await http.post(
   //         uri,
   //         body: json.encode({
@@ -312,7 +313,7 @@ Widget build(BuildContext context) {
                             final String downloadUrl = await snapshot.ref.getDownloadURL();
 
                             // Send downloadUrl to backend
-                            final Uri uri = Uri.parse('http://192.168.131.120:8000/api/dfu-record/upload');
+                            final Uri uri = Uri.parse('http://192.168.1.9:8000/api/uploadPic');
                             final http.Response response = await http.post(
                               uri,
                               body: json.encode({
@@ -326,7 +327,7 @@ Widget build(BuildContext context) {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => DFURecordPage(imageUrl: downloadUrl),
+                                  builder: (context) => DFURecordPage(patientId: widget.patientId!, dfuRecord: fetchedDfuRecord),
                                 ),
                               );
                             } else {
