@@ -48,42 +48,92 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
 
 
   Future<void> fetchLatestDfuRecord() async {
-  try {
-    final dfuResponse = await http.get(
-      Uri.parse('http://192.168.1.9:8000/api/dfu-record/${widget.patientId}'),
-    );
+    try {
+      // Fetch medical record ID
+      int? medicalRecordId = await fetchMedicalRecordId(widget.patientId);
 
-    print('Response status code: ${dfuResponse.statusCode}');
-    print('Response body: ${dfuResponse.body}');
+      if (medicalRecordId == null) {
+        // Handle the case where medicalRecordId is null
+        return; // or throw an error, depending on your app logic
+      }
 
-    if (dfuResponse.statusCode == 200) {
-      final fetchedDfuRecord = jsonDecode(dfuResponse.body)['dfuRecord'];
-      setState(() {
-        latestDfuRecord = fetchedDfuRecord;
-      });
-    } else {
-      print('Failed to fetch latest DFU record: ${dfuResponse.statusCode}');
-      throw Exception('Failed to fetch latest DFU record: ${dfuResponse.statusCode}');
+      final dfuResponse = await http.get(
+        Uri.parse('http://192.168.1.9:8000/api/dfu-record/$medicalRecordId'),
+      );
+
+      print('Response status code: ${dfuResponse.statusCode}');
+      print('Response body: ${dfuResponse.body}');
+
+      if (dfuResponse.statusCode == 200) {
+        final fetchedDfuRecord = jsonDecode(dfuResponse.body)['dfuRecord'];
+        setState(() {
+          latestDfuRecord = fetchedDfuRecord;
+        });
+      } else {
+        print('Failed to fetch latest DFU record: ${dfuResponse.statusCode}');
+        throw Exception('Failed to fetch latest DFU record: ${dfuResponse.statusCode}');
+      }
+    } catch (error) {
+      print('Error fetching latest DFU record: $error');
+      throw error; // Rethrow the error to propagate it
     }
-  } catch (error) {
-    print('Error fetching latest DFU record: $error');
-    throw error; // Rethrow the error to propagate it
   }
-}
+
+
+Future<int?> fetchMedicalRecordId(int patientId) async {
+    final Uri uri = Uri.parse('http://192.168.1.9:8000/api/medical-record-id/$patientId');
+    final response = await http.get(uri);
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['medicalRecordId'];
+    }
+    return null;
+  }
 
   void _navigateToDfuRecordPage() async {
     print('Navigating to DFU Record Page...');
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => DFURecordPage(
-          patientId: widget.patientId,
-          dfuRecord: latestDfuRecord, // Pass the fetched DFU record
+    try {
+      // Fetch medical record ID
+      int? medicalRecordId = await fetchMedicalRecordId(widget.patientId);
+
+      if (medicalRecordId == null) {
+        _showErrorDialog('Medical record ID is not available.');
+        return;
+      }
+
+      // Fetch latest DFU record
+      await fetchLatestDfuRecord();
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DFURecordPage(
+            patientId: widget.patientId,
+            dfuRecord: latestDfuRecord,
+          ),
         ),
-      ),
-    );
+      );
+    } catch (e) {
+      _showErrorDialog('Failed to navigate to DFU Record Page: $e');
+    }
   }
+
+void _showErrorDialog(String message) {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text('Error'),
+      content: Text(message),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text('OK'),
+        ),
+      ],
+    ),
+  );
+}
 
 
   Future<void> fetchProfileData() async {

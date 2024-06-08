@@ -81,7 +81,7 @@ class CameraScreen extends StatelessWidget {
         headers: {'Content-Type': 'application/json'},
       );
       print('Response status code: ${response.statusCode}');
-print('print 4');
+      print('print 4');
       if (response.statusCode == 200) {
         final prediction = jsonDecode(response.body);
         final String predictionText = prediction['prediction'];
@@ -157,47 +157,100 @@ Widget build(BuildContext context) {
         color: Colors.white,
       ),
     ),
-    body: Center(
-      child: Container(
-        height: 50, // Adjust height as needed
-        width: 280, // Adjust width as needed
-        padding: EdgeInsets.symmetric(horizontal: 25),
-        margin: EdgeInsets.symmetric(horizontal: 25),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFFA67CE4), // First color
-              Color(0xFF5915BD), // Second color
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+    body: SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(height: 60), // Space from the top of the screen
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'To ensure accurate diagnosis, please follow these tips:',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 20),
+                Text(
+                  '1. Place your foot on a flat surface with good lighting.',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black87,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 10),
+                Text(
+                  '2. Ensure the entire foot is visible in the picture.',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black87,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 10),
+                Text(
+                  '3. Keep the camera steady to avoid blurry images.',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black87,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 20),
+              ],
+            ),
           ),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: ElevatedButton(
-          onPressed: () => _takePicture(context),
-          style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all(Colors.transparent), // Make button transparent
-            elevation: MaterialStateProperty.all(0), // Remove elevation
-            shape: MaterialStateProperty.all(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+          SizedBox(height: 40), // Space between tips and button
+          Container(
+            height: 50,
+            width: 280,
+            padding: EdgeInsets.symmetric(horizontal: 25),
+            margin: EdgeInsets.symmetric(horizontal: 25),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color(0xFFA67CE4), // First color
+                  Color(0xFF5915BD), // Second color
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: ElevatedButton(
+              onPressed: () => _takePicture(context),
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Colors.transparent), // Make button transparent
+                elevation: MaterialStateProperty.all(0), // Remove elevation
+                shape: MaterialStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  'Take a picture',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
               ),
             ),
           ),
-          child: Center(
-            child: Text(
-              'Take a picture',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-          ),
-        ),
+        ],
       ),
     ),
   );
 }
+
 }
