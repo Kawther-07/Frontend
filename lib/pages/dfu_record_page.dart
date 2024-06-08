@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -22,70 +21,65 @@ class _DFURecordPageState extends State<DFURecordPage> {
   void initState() {
     super.initState();
     if (widget.dfuRecord != null) {
-      dfuRecord = widget.dfuRecord; // Assign widget.dfuRecord to dfuRecord if not null
+      dfuRecord = widget.dfuRecord; 
       isLoading = false;
     } else {
-      fetchDfuRecord(widget.patientId); // Fetch DFU record if widget.dfuRecord is null
+      fetchDfuRecord(widget.patientId);
     }
   }
 
   Future<void> fetchDfuRecord(int patientId) async {
-    try {
-      setState(() {
-        isLoading = true; // Set loading state
-      });
-      print('Fetching DFU record for patient ID: $patientId');
-      final response = await http
-          .get(Uri.parse('http://192.168.1.9:8000/api/dfu-record/$patientId'))
-          .timeout(const Duration(seconds: 10));
+  try {
+    setState(() {
+      isLoading = true; // Set loading state
+    });
 
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
+    final response = await http
+        .get(Uri.parse('http://192.168.1.9:8000/api/dfu-record/$patientId'))
+        .timeout(const Duration(seconds: 10));
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data['status'] == true) {
-          setState(() {
-            dfuRecord = data['dfuRecord']; // Update dfuRecord with fetched data
-            isLoading = false;
-          });
-        } else {
-          setState(() {
-            isLoading = false;
-          });
-          showError('No DFU record found');
-        }
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      if (data['status'] == true) {
+        setState(() {
+          dfuRecord = data['dfuRecord'];
+          isLoading = false;
+        });
       } else {
         setState(() {
           isLoading = false;
         });
-        showError('Failed to load DFU record');
+        showError('No DFU record found');
       }
-    } on http.ClientException catch (e) {
+    } else {
       setState(() {
         isLoading = false;
       });
-      showError('Client exception: ${e.message}');
-      print('Client exception: ${e.message}');
-    } on TimeoutException catch (e) {
-      setState(() {
-        isLoading = false;
-      });
-      showError('Request timed out');
-      print('Request timed out: $e');
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
-      showError('An error occurred: $e');
-      print('Error: $e');
+      showError('Failed to load DFU record');
     }
+  } on http.ClientException catch (e) {
+    handleFetchError('Client exception: ${e.message}');
+  } on TimeoutException catch (e) {
+    handleFetchError('Request timed out: $e');
+  } catch (e) {
+    handleFetchError('An error occurred: $e');
   }
+}
 
-  void showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-    // You can navigate back or handle the error state as per your app logic
-  }
+void handleFetchError(String errorMessage) {
+  setState(() {
+    isLoading = false;
+  });
+  showError(errorMessage);
+  print('Error: $errorMessage');
+}
+
+void showError(String message) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+}
 
   @override
   Widget build(BuildContext context) {
@@ -112,57 +106,59 @@ class _DFURecordPageState extends State<DFURecordPage> {
           ? Center(child: CircularProgressIndicator())
           : dfuRecord == null // Check if dfuRecord is null
               ? Center(child: Text('No DFU record found for this patient ID'))
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(left: 20, top: 15),
-                      child: Text(
-                        'Your foot image:',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w400),
-                      ),
-                    ),
-                    Expanded(
-                      child: Align(
-                        alignment: Alignment.topLeft,
+              : SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
                         child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Padding(
-                              padding: const EdgeInsets.only(left: 20, top: 10),
-                              child: Image.network(
-                                dfuRecord!['image'],
-                                fit: BoxFit.cover,
-                                width: 250,
-                                height: 250,
-                                errorBuilder: (context, error, stackTrace) => Text(
-                                  'Error loading image',
-                                  style: TextStyle(color: Colors.red),
+                            Text(
+                              'Your foot image:',
+                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(height: 10),
+                            Center(
+                              child: Container(
+                                width: 300,
+                                height: 300,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: Colors.grey),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Image.network(
+                                    dfuRecord!['image'],
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) => Center(
+                                      child: Text(
+                                        'Error loading image',
+                                        style: TextStyle(color: Colors.red),
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
-                            SizedBox(height: 30),
-                            Padding(
-                              padding: EdgeInsets.only(right: 32),
-                              child: Text(
-                                'View: ${dfuRecord!['view'] ?? 'Not specified'}',
-                                style: TextStyle(fontSize: 16),
-                              ),
+                            SizedBox(height: 20),
+                            Text(
+                              'view: ${dfuRecord!['prediction'] ?? 'Not specified'}',
+                              style: TextStyle(fontSize: 18),
                             ),
-                            // SizedBox(height: 25),
-                            // Padding(
-                            //   padding: EdgeInsets.only(left: 30),
-                            //   child: Text(
-                            //     'Description: ${dfuRecord!['description'] ?? 'Not specified'}',
-                            //     style: TextStyle(fontSize: 16),
-                            //   ),
-                            // ),
+                            SizedBox(height: 10),
+                            Text(
+                              '${dfuRecord!['message'] ?? 'Prediction not available'}',
+                              style: TextStyle(fontSize: 18),
+                            ),
                           ],
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
     );
   }
 }
-
