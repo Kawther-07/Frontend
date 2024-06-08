@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "821505640316",
-    "project_id": "doolabmobile",
-    "storage_bucket": "doolabmobile.appspot.com"
+    "project_number": "290926603914",
+    "project_id": "doolabmobile-25fdb",
+    "storage_bucket": "doolabmobile-25fdb.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:821505640316:android:4172739b8f7eaf413bc6f9",
+        "mobilesdk_app_id": "1:290926603914:android:4e21a539498637ff2ac773",
         "android_client_info": {
           "package_name": "com.example.DoolabMobile"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAheCuLE93A382_8PTCOHR5fcZKFSYq8gs"
+          "current_key": "AIzaSyAdEv0czJvYoArj_KHzbsLZkZSw_9tIzQQ"
         }
       ],
       "services": {

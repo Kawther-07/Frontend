@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:DoolabMobile/pages/AboutUsPage.dart';
+import 'package:DoolabMobile/pages/camera_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
@@ -19,8 +20,9 @@ class HomePage extends StatefulWidget {
   final int? doctorId;
   final String? doctorName; // Add doctorName parameter
   final bool isNewRegistration;
+  final int? medicalRecordId;
 
-  HomePage({Key? key, this.patientId, this.userName, this.doctorId, this.doctorName, this.isNewRegistration = false}) : super(key: key);
+  HomePage({Key? key, this.patientId, this.userName, this.doctorId, this.doctorName, this.isNewRegistration = false, this.medicalRecordId}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -31,6 +33,7 @@ class _HomePageState extends State<HomePage> {
   String _userName = '';
   late Timer _timer;
   int _tipIndex = 0;
+  Map<String, dynamic>? fetchedDfuRecord;
   List<String> _tips = [
     'Keep your feet clean and dry.',
     'Check your feet daily for any sores or wounds.',
@@ -86,7 +89,7 @@ void dispose() {
 
   Future<void> fetchUserName() async {
     try {
-      final Uri uri = Uri.parse('http://192.168.131.120:8000/api/patient/name/${widget.patientId}');
+      final Uri uri = Uri.parse('http://192.168.1.9:8000/api/patient/name/${widget.patientId}');
       final http.Response response = await http.get(uri);
       print('Response status code: ${response.statusCode}');
       print('Response body: ${response.body}');
@@ -107,49 +110,6 @@ void dispose() {
       print('Error fetching user name: $e');
     }
   }
-
-  // Future<void> _takePicture() async {
-  //   final imagePicker = ImagePicker();
-  //   try {
-  //     final pickedFile = await imagePicker.pickImage(source: ImageSource.camera);
-  //     if (pickedFile != null) {
-  //       final File imageFile = File(pickedFile.path);
-
-  //       // Upload image to Firebase Storage
-  //       final Reference storageRef = FirebaseStorage.instance.ref().child('images/${DateTime.now().millisecondsSinceEpoch}.jpg');
-  //       final UploadTask uploadTask = storageRef.putFile(imageFile);
-        
-  //       // Get download URL of uploaded image
-  //       TaskSnapshot snapshot = await uploadTask;
-  //       final String downloadUrl = await snapshot.ref.getDownloadURL();
-
-  //       // Send downloadUrl to backend
-  //       final Uri uri = Uri.parse('http://192.168.131.120:8000/api/dfu-record/upload');
-  //       final http.Response response = await http.post(
-  //         uri,
-  //         body: json.encode({
-  //           'medicalRecordId': widget.patientId,
-  //           'imageUrl': downloadUrl,
-  //         }),
-  //         headers: {'Content-Type': 'application/json'},
-  //       );
-
-  //       if (response.statusCode == 200) {
-  //         Navigator.push(
-  //           context,
-  //           MaterialPageRoute(
-  //             builder: (context) => DFURecordPage(imageUrl: downloadUrl),
-  //           ),
-  //         );
-  //       } else {
-  //         print('Failed to upload image to backend: ${response.statusCode}');
-  //       }
-  //     }
-  //   } catch (e) {
-  //     print('Error taking picture or uploading: $e');
-  //   }
-  // }
-
 
   // Method to show profile completion message as a dialog
  @override
@@ -181,6 +141,27 @@ void dispose() {
       },
     );
   }
+
+  // Future<int?> fetchMedicalRecordId(int patientId) async {
+  //   try {
+  //     final Uri uri = Uri.parse('http://192.168.1.9:8000/api//medical-record-id/$patientId');
+  //     final http.Response response = await http.get(uri);
+  //     print('4th print');
+  //     print('Response status code: ${response.statusCode}');
+  //     print('Response body: ${response.body}');
+  //     if (response.statusCode == 200) {
+  //       final responseData = jsonDecode(response.body);
+  //       final medicalRecordId = responseData['medicalRecordId']; // Adjust to match your API response structure
+  //       return medicalRecordId;
+  //     } else {
+  //       print('Failed to fetch medical record ID: ${response.statusCode}');
+  //       return null;
+  //     }
+  //   } catch (e) {
+  //     print('Error fetching medical record ID: $e');
+  //     return null;
+  //   }
+  // }
 
 
   @override
@@ -247,102 +228,69 @@ Widget build(BuildContext context) {
             // const SizedBox(height: 20),
 
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 5),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(15),
-                border: Border.all(color: const Color(0xFF5915BD)),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF300374).withOpacity(0.5),
-                    spreadRadius: 1,
-                    blurRadius: 3,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Text(
-                _tips[_tipIndex],
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black),
-                textAlign: TextAlign.center,
-              ),
-            ),
+  margin: const EdgeInsets.symmetric(horizontal: 5),
+  padding: const EdgeInsets.all(16),
+  decoration: BoxDecoration(
+    color: Colors.white,
+    borderRadius: BorderRadius.circular(15),
+    border: Border.all(color: const Color(0xFF5915BD)),
+    boxShadow: [
+      BoxShadow(
+        color: const Color(0xFF300374).withOpacity(0.5),
+        spreadRadius: 1,
+        blurRadius: 3,
+        offset: const Offset(0, 2),
+      ),
+    ],
+  ),
+  child: Text(
+    _tips[_tipIndex],
+    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black),
+    textAlign: TextAlign.center,
+  ),
+),
 
-            const SizedBox(height: 20),
+const SizedBox(height: 20),
 
-            Container(
-              padding: const EdgeInsets.all(15),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [
-                    Color(0xFFA67CE4),
-                    Color(0xFF5915BD),
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Column(
-                children: [
-                  const Text(
-                    'Do you want to check your foot condition?',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: 200,
-                    height: 40,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        final imagePicker = ImagePicker();
-                        try {
-                          final pickedFile = await imagePicker.pickImage(source: ImageSource.camera);
-                          if (pickedFile != null) {
-                            final File imageFile = File(pickedFile.path);
-
-                            // Upload image to Firebase Storage
-                            final Reference storageRef = FirebaseStorage.instance.ref().child('images/${DateTime.now().millisecondsSinceEpoch}.jpg');
-                            final UploadTask uploadTask = storageRef.putFile(imageFile);
-                            
-                            // Get download URL of uploaded image
-                            TaskSnapshot snapshot = await uploadTask;
-                            final String downloadUrl = await snapshot.ref.getDownloadURL();
-
-                            // Send downloadUrl to backend
-                            final Uri uri = Uri.parse('http://192.168.131.120:8000/api/dfu-record/upload');
-                            final http.Response response = await http.post(
-                              uri,
-                              body: json.encode({
-                                'medicalRecordId': widget.patientId,
-                                'imageUrl': downloadUrl,
-                              }),
-                              headers: {'Content-Type': 'application/json'},
-                            );
-
-                            if (response.statusCode == 200) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => DFURecordPage(imageUrl: downloadUrl),
-                                ),
-                              );
-                            } else {
-                              print('Failed to upload image to backend: ${response.statusCode}');
-                            }
-                          }
-                        } catch (e) {
-                          print('Error taking picture or uploading: $e');
-                        }
-                      },
-                      child: Text('Take Picture'),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+Container(
+  padding: const EdgeInsets.all(15),
+  decoration: BoxDecoration(
+    gradient: const LinearGradient(
+      colors: [
+        Color(0xFFA67CE4),
+        Color(0xFF5915BD),
+      ],
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+    ),
+    borderRadius: BorderRadius.circular(20),
+  ),
+  child: Column(
+    children: [
+      const Text(
+        'Do you want to check your foot condition?',
+        textAlign: TextAlign.center,
+        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+      ),
+      const SizedBox(height: 16),
+      SizedBox(
+        width: 200,
+        height: 40,
+        child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CameraScreen(patientId: widget.patientId!),
+                            ),
+                          );
+                        },
+                        child: Text('Take Picture'),
+        ),
+      ),
+    ],
+  ),
+),
 
             const SizedBox(height: 2),
 
@@ -852,6 +800,7 @@ if (_showMedicationBox)
                   doctorId: widget.doctorId,
                   currentIndex: _selectedIndex,
                   onItemTapped: _handleItemTap,
+                  // medicalRecordId: widget.medicalRecordId!,
                 ),
               ),
             );

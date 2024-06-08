@@ -1,8 +1,8 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:fl_chart/fl_chart.dart';
 
 class StatsPage extends StatefulWidget {
   final int patientId;
@@ -17,17 +17,18 @@ class _StatsPageState extends State<StatsPage> {
   final TextEditingController _glycemiaController = TextEditingController();
   double newGlycemiaRate = double.nan; 
   bool _showGlycemiaList = false;
-  int? medicalRecordId; // Declare a variable to store medical record ID
+  int? medicalRecordId;
+  String currentMonth = DateFormat('MMMM').format(DateTime.now()); // Track the current month dynamically
 
   @override
   void initState() {
     super.initState();
-    fetchMedicalRecordId(); // Fetch medical record ID when initializing the page
+    fetchMedicalRecordId();
   }
 
   Future<void> fetchMedicalRecordId() async {
     try {
-      final Uri uri = Uri.parse('http://192.168.131.120:8000/api/medical-record-id/${widget.patientId}');
+      final Uri uri = Uri.parse('http://192.168.1.9:8000/api/medical-record-id/${widget.patientId}');
       final http.Response response = await http.get(uri);
       print('Fetch medical record ID - Response status code: ${response.statusCode}');
       if (response.statusCode == 200) {
@@ -37,9 +38,8 @@ class _StatsPageState extends State<StatsPage> {
           setState(() {
             medicalRecordId = fetchedMedicalRecordId;
           });
-          
           print('Fetched medical record ID: $medicalRecordId');
-          fetchData(); // Call fetchData here after medicalRecordId is fetched
+          fetchData();
         } else {
           print('Medical record ID not found in response data');
         }
@@ -63,7 +63,7 @@ class _StatsPageState extends State<StatsPage> {
     }
 
     try {
-      final Uri uri = Uri.parse('http://192.168.131.120:8000/api/glycemia');
+      final Uri uri = Uri.parse('http://192.168.1.9:8000/api/glycemia');
       print('Sending request to: $uri');
       print('Request body: ${jsonEncode(<String, dynamic>{
         'medicalRecordId': medicalRecordId,
@@ -84,7 +84,6 @@ class _StatsPageState extends State<StatsPage> {
       if (response.statusCode == 201) {
         fetchData();
         _glycemiaController.clear();
-        // Reset newGlycemiaRate after successful addition
         newGlycemiaRate = double.nan;
       } else {
         print('Failed to add glycemia record: ${response.statusCode}');
@@ -97,7 +96,7 @@ class _StatsPageState extends State<StatsPage> {
 
   Future<void> fetchData() async {
     try {
-      final Uri uri = Uri.parse('http://192.168.131.120:8000/api/glycemia/${widget.patientId}');
+      final Uri uri = Uri.parse('http://192.168.1.9:8000/api/glycemia/${widget.patientId}');
       final http.Response response = await http.get(uri);
       print('Fetch glycemia data - Response status code: ${response.statusCode}');
       
@@ -110,6 +109,13 @@ class _StatsPageState extends State<StatsPage> {
               .map((data) => GlycemiaData.fromJson(data))
               .where((glycemiaData) => !glycemiaData.glycemia.isNaN && !glycemiaData.glycemia.isInfinite)
               .toList();
+
+          // Update current month based on the first data point
+          if (data.isNotEmpty) {
+            currentMonth = DateFormat('MMMM').format(data.first.date);
+          } else {
+            currentMonth = ''; // Reset if data is empty
+          }
         });
       } else {
         print('Failed to fetch glycemia data: ${response.statusCode}');
@@ -167,7 +173,7 @@ class _StatsPageState extends State<StatsPage> {
               ),
               const SizedBox(height: 30),
               ElevatedButton(
-                onPressed: medicalRecordId != null ? addGlycemiaRecord : null, // Disable button if medicalRecordId is null
+                onPressed: medicalRecordId != null ? addGlycemiaRecord : null,
                 style: ButtonStyle(
                   padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
                     EdgeInsets.symmetric(vertical: 5.0),
@@ -178,7 +184,7 @@ class _StatsPageState extends State<StatsPage> {
                     ),
                   ),
                   backgroundColor: MaterialStateProperty.all<Color>(
-                    medicalRecordId != null ? Colors.transparent : Colors.grey.withOpacity(0.5), // Adjust button color based on condition
+                    medicalRecordId != null ? Colors.transparent : Colors.grey.withOpacity(0.5),
                   ),
                   elevation: MaterialStateProperty.all<double>(0),
                   shadowColor: MaterialStateProperty.all<Color>(
@@ -252,122 +258,163 @@ class _StatsPageState extends State<StatsPage> {
                     ),
                   ),
                 ),
-              child: Ink(
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [
-                      Color(0xFFA67CE4),
-                      Color(0xFF5915BD),
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
+                child: Ink(
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color(0xFFA67CE4),
+                        Color(0xFF5915BD),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: Container(
-                  constraints: BoxConstraints(minWidth: 140.0, minHeight: 50.0),
-                  alignment: Alignment.center,
-                  child: Text(
-                    _showGlycemiaList ? 'Hide Glycemia Records' : 'Show Glycemia Records',
-                    style: TextStyle(color: Colors.white),
+                  child: Container(
+                    constraints: BoxConstraints(minWidth: 140.0, minHeight: 50.0),
+                    alignment: Alignment.center,
+                    child: Text(
+                      _showGlycemiaList ? 'Hide Glycemia Records' : 'Show Glycemia Records',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
               ),
-            ),
-            if (_showGlycemiaList) ...[
-              const SizedBox(height: 20),
-              _buildGlycemiaList(),
+              const SizedBox(height: 15),
+              if (_showGlycemiaList) _buildGlycemiaList(),
             ],
-          ],
+          ),
         ),
-      ),
       ),
     );
   }
 
+
+
   Widget _buildGlycemiaChart() {
   if (data.isEmpty) {
-    return _emptyChart();
-  } else {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          'Glycemia Chart:',
-          style: TextStyle(
-            fontSize: 18.0,
-            fontWeight: FontWeight.bold,
+    return const Text('No glycemia data available.');
+  }
+
+  final List<FlSpot> spots = data
+      .asMap()
+      .entries
+      .map((entry) => FlSpot(entry.key.toDouble(), entry.value.glycemia))
+      .toList();
+
+  return Card(
+    elevation: 2.0,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10.0),
+    ),
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'Glycemia Chart of $currentMonth',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-        ),
-        SizedBox(height: 10),
-        Padding(
-          padding: const EdgeInsets.only(right: 2.0), // Adjust the left padding here
-          child: Container(
-            height: 300,
-            padding: EdgeInsets.all(8.0),
-            width: double.infinity, // Make the container width match parent
+          const SizedBox(height: 10),
+          AspectRatio(
+            aspectRatio: 1.5,
             child: LineChart(
               LineChartData(
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: data
-                        .asMap()
-                        .entries
-                        .map((entry) => FlSpot(
-                              entry.key.toDouble(),
-                              entry.value.glycemia,
-                            ))
-                        .toList(),
-                    isCurved: true,
-                    colors: [Color(0xFF2680BC)], // Set line color to #2680bc
-                    barWidth: 4,
-                    isStrokeCapRound: true,
-                    belowBarData: BarAreaData(show: false),
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: true,
+                  getDrawingHorizontalLine: (value) {
+                    return FlLine(
+                      color: Color(0xFFC6C6C6),
+                      strokeWidth: 1,
+                    );
+                  },
+                  getDrawingVerticalLine: (value) {
+                    return FlLine(
+                      color: Color(0xFFC6C6C6),
+                      strokeWidth: 1,
+                    );
+                  },
+                ),
+                titlesData: FlTitlesData(
+                  show: true,
+                  topTitles: AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
                   ),
-                ],
+                  rightTitles: AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      interval: 2,
+                      getTitlesWidget: (value, meta) {
+                        return Text(
+                          value.toInt().toString(),
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 10,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      interval: 1,
+                      getTitlesWidget: (value, meta) {
+                        final int index = value.toInt();
+                        if (index >= 0 && index < data.length) {
+                          final DateTime date = data[index].date;
+                          final String formattedTime =
+                              DateFormat('HH:mm').format(date);
+                          return Text(
+                            formattedTime,
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 10,
+                            ),
+                          );
+                        }
+                        return const Text('');
+                      },
+                    ),
+                  ),
+                ),
+                borderData: FlBorderData(
+                  show: true,
+                  border: const Border(
+                    bottom: BorderSide(color: Colors.black),
+                    left: BorderSide(color: Colors.black),
+                  ),
+                ),
                 minX: 0,
                 maxX: data.length.toDouble() - 1,
                 minY: 0,
-                maxY: data.map((e) => e.glycemia).reduce((a, b) => a > b ? a : b) + 5,
-                titlesData: FlTitlesData(
-                  bottomTitles: SideTitles(
-                    showTitles: true,
-                    interval: 1, // Show every label
-                    getTitles: (value) {
-                      // Ensure index is within bounds
-                      if (value >= 0 && value < data.length) {
-                        // Format the DateTime to show hour
-                        return DateFormat.Hm().format(data[value.toInt()].date);
-                      }
-                      return '';
-                    },
-                    margin: 8, // Adjust the margin between labels
+                maxY: data.map((e) => e.glycemia).reduce((a, b) => a > b ? a : b) + 2,
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: spots,
+                    isCurved: true,
+                    color: Colors.blue,
+                    barWidth: 2,
+                    belowBarData: BarAreaData(
+                      show: false,
+                      color: Colors.blue.withOpacity(0.3),
+                    ),
                   ),
-                  leftTitles: SideTitles(
-                    showTitles: true,
-                    interval: 2, // Show labels at every 2nd spot
-                    getTitles: (value) {
-                      return value.toInt().toString();
-                    },
-                    margin: 8,
-                  ),
-                  topTitles: SideTitles(
-                    showTitles: false, // Remove top titles
-                  ),
-                  rightTitles: SideTitles(
-                    showTitles: false, // Remove right titles
-                  ),
-                ),
-                borderData: FlBorderData(show: true),
-                gridData: FlGridData(show: true),
+                ],
               ),
             ),
           ),
-        ),
-      ],
-    );
-  }
+        ],
+      ),
+    ),
+  );
 }
+
 
 
   Widget _buildGlycemiaList() {
