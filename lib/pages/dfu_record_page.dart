@@ -6,8 +6,9 @@ import 'package:http/http.dart' as http;
 class DFURecordPage extends StatefulWidget {
   final int patientId;
   final Map<String, dynamic>? dfuRecord;
+  final int? medicalRecordId;
 
-  const DFURecordPage({Key? key, required this.patientId, this.dfuRecord}) : super(key: key);
+  const DFURecordPage({Key? key, required this.patientId, this.dfuRecord, this.medicalRecordId}) : super(key: key);
 
   @override
   _DFURecordPageState createState() => _DFURecordPageState();
@@ -24,18 +25,18 @@ class _DFURecordPageState extends State<DFURecordPage> {
       dfuRecord = widget.dfuRecord; 
       isLoading = false;
     } else {
-      fetchDfuRecord(widget.patientId);
+      fetchDfuRecord(widget.patientId, widget.medicalRecordId!);
     }
   }
 
-  Future<void> fetchDfuRecord(int patientId) async {
+  Future<void> fetchDfuRecord(int patientId, int medicalRecordId) async {
   try {
     setState(() {
-      isLoading = true; // Set loading state
+      isLoading = true;
     });
 
     final response = await http
-        .get(Uri.parse('http://192.168.1.9:8000/api/dfu-record/$patientId'))
+        .get(Uri.parse('http://192.168.1.9:8000/api/dfu-record/$patientId/$medicalRecordId'))
         .timeout(const Duration(seconds: 10));
 
     print('Response status: ${response.statusCode}');
