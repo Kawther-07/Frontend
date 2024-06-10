@@ -89,7 +89,7 @@ void dispose() {
 
   Future<void> fetchUserName() async {
     try {
-      final Uri uri = Uri.parse('http://192.168.1.9:8000/api/patient/name/${widget.patientId}');
+      final Uri uri = Uri.parse('http://192.168.1.3:8000/api/patient/name/${widget.patientId}');
       final http.Response response = await http.get(uri);
       print('Response status code: ${response.statusCode}');
       print('Response body: ${response.body}');
@@ -144,7 +144,7 @@ void dispose() {
 
   // Future<int?> fetchMedicalRecordId(int patientId) async {
   //   try {
-  //     final Uri uri = Uri.parse('http://192.168.1.9:8000/api//medical-record-id/$patientId');
+  //     final Uri uri = Uri.parse('http://192.168.1.3:8000/api//medical-record-id/$patientId');
   //     final http.Response response = await http.get(uri);
   //     print('4th print');
   //     print('Response status code: ${response.statusCode}');

@@ -42,10 +42,8 @@ class MyApp extends StatelessWidget {
         '/': (context) => SplashScreen(), 
         '/login': (context) => LoginPage(),
         '/register': (context) => RegisterPage(), 
-        // '/stats': (context) => StatsPage(),
         '/home': (context) => HomePage(), 
         '/education': (context) => EducationPage(), 
-        // '/profile': (context) => PatientProfilePage(),
         '/welcome': (context) => WelcomePage(),
       },
     );

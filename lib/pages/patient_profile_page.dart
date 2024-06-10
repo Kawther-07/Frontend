@@ -8,6 +8,7 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:DoolabMobile/pages/components/my_texfield.dart';
+import 'package:DoolabMobile/pages/AboutUsPage.dart';
 
 class PatientProfilePage extends StatefulWidget {
   final int patientId;
@@ -58,7 +59,7 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
       }
 
       final dfuResponse = await http.get(
-        Uri.parse('http://192.168.1.9:8000/api/dfu-record/$medicalRecordId'),
+        Uri.parse('http://192.168.1.3:8000/api/dfu-record/$medicalRecordId'),
       );
 
       print('Response status code: ${dfuResponse.statusCode}');
@@ -81,7 +82,7 @@ class _PatientProfilePageState extends State<PatientProfilePage> {
 
 
 Future<int?> fetchMedicalRecordId(int patientId) async {
-    final Uri uri = Uri.parse('http://192.168.1.9:8000/api/medical-record-id/$patientId');
+    final Uri uri = Uri.parse('http://192.168.1.3:8000/api/medical-record-id/$patientId');
     final response = await http.get(uri);
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
@@ -141,7 +142,7 @@ void _showErrorDialog(String message) {
     final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
     final profileResponse = await http.get(
-      Uri.parse('http://192.168.1.9:8000/api/patient/profile/${widget.patientId}'),
+      Uri.parse('http://192.168.1.3:8000/api/patient/profile/${widget.patientId}'),
       headers: {
         'Authorization': 'Bearer $token',
       },
@@ -185,7 +186,7 @@ void _showErrorDialog(String message) {
 Future<void> fetchMedicalRecordData() async {
     try {
       final medicalRecordResponse = await http.get(
-        Uri.parse('http://192.168.1.9:8000/api/medical-record/${widget.patientId}'),
+        Uri.parse('http://192.168.1.3:8000/api/medical-record/${widget.patientId}'),
       );
 
       if (medicalRecordResponse.statusCode == 200) {
@@ -352,6 +353,12 @@ Widget build(BuildContext context) {
                 icon: Icons.question_mark,
                 label: "About us",
                 onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AboutUsPage(),
+                    ),
+                  );
                 },
               ),
             ],
@@ -511,30 +518,36 @@ void initState() {
               children: [
                 TextFormField(
                   initialValue: gender,
-                  decoration: InputDecoration(labelText: 'Gender'),
+                  decoration: InputDecoration(
+                    labelText: 'Gender',
+                    labelStyle: TextStyle(fontSize: 20),
+                    ),
                   onChanged: (value) {
                     setState(() {
                       gender = value;
                     });
                   },
                 ),
+                SizedBox(height: 20),
                 TextFormField(
                   initialValue: height.toString(),
-                  decoration: InputDecoration(labelText: 'Height'),
+                  decoration: InputDecoration(labelText: 'Height', labelStyle: TextStyle(fontSize: 20),),
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
                   onSaved: (value) => height = double.parse(value!),
                 ),
+                SizedBox(height: 20),
                 TextFormField(
                   initialValue: weight.toString(),
-                  decoration: InputDecoration(labelText: 'Weight'),
+                  decoration: InputDecoration(labelText: 'Weight', labelStyle: TextStyle(fontSize: 20),),
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
                   onSaved: (value) => weight = double.parse(value!),
                 ),
+                SizedBox(height: 20),
                 TextFormField(
                   controller: TextEditingController(
                     text: birthDate != null ? DateFormat('yyyy-MM-dd').format(birthDate!) : '',
                   ),
-                  decoration: InputDecoration(labelText: 'Birth Date'),
+                  decoration: InputDecoration(labelText: 'Birth Date', labelStyle: TextStyle(fontSize: 20),),
                   onTap: () async {
                     DateTime? pickedDate = await showDatePicker(
                       context: context,
@@ -624,7 +637,7 @@ void initState() {
   print('Request Body: $requestBody');
   final String jsonBody = jsonEncode(requestBody);
   print('JSON Body: $jsonBody');
-  final Uri uri = Uri.parse('http://192.168.1.9:8000/api/patient/profile');
+  final Uri uri = Uri.parse('http://192.168.1.3:8000/api/patient/profile');
   print('Request URI: $uri');
   try {
     final http.Response response = await http.post(
@@ -718,7 +731,7 @@ void initState() {
   }
   final String jsonBody = jsonEncode(requestBody);
   print('PATCH Request Body: $jsonBody');
-  final Uri uri = Uri.parse('http://192.168.1.9:8000/api/patient/updateprofile/$patientId');
+  final Uri uri = Uri.parse('http://192.168.1.3:8000/api/patient/updateprofile/$patientId');
   try {
     final http.Response response = await http.patch(
       uri,
@@ -897,7 +910,7 @@ class _MedicalRecordPageState extends State<MedicalRecordPage> {
     print('Request Body: $body'); // Print request body
 
     final response = await http.post(
-      Uri.parse('http://192.168.1.9:8000/api/medical-record'),
+      Uri.parse('http://192.168.1.3:8000/api/medical-record'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(body),
     );
@@ -935,7 +948,7 @@ class _MedicalRecordPageState extends State<MedicalRecordPage> {
 
     final String jsonBody = jsonEncode(body);
     print('PATCH Request Body: $jsonBody');
-    final url = 'http://192.168.1.9:8000/api/medical-record/patient/${widget.patientId}';
+    final url = 'http://192.168.1.3:8000/api/medical-record/patient/${widget.patientId}';
     print('PATCH URL: $url');
 
     final response = await http.patch(

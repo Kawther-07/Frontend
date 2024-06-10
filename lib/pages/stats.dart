@@ -28,7 +28,7 @@ class _StatsPageState extends State<StatsPage> {
 
   Future<void> fetchMedicalRecordId() async {
     try {
-      final Uri uri = Uri.parse('http://192.168.1.9:8000/api/medical-record-id/${widget.patientId}');
+      final Uri uri = Uri.parse('http://192.168.1.3:8000/api/medical-record-id/${widget.patientId}');
       final http.Response response = await http.get(uri);
       print('Fetch medical record ID - Response status code: ${response.statusCode}');
       if (response.statusCode == 200) {
@@ -63,7 +63,7 @@ class _StatsPageState extends State<StatsPage> {
     }
 
     try {
-      final Uri uri = Uri.parse('http://192.168.1.9:8000/api/glycemia');
+      final Uri uri = Uri.parse('http://192.168.1.3:8000/api/glycemia');
       print('Sending request to: $uri');
       print('Request body: ${jsonEncode(<String, dynamic>{
         'medicalRecordId': medicalRecordId,
@@ -96,7 +96,7 @@ class _StatsPageState extends State<StatsPage> {
 
   Future<void> fetchData() async {
     try {
-      final Uri uri = Uri.parse('http://192.168.1.9:8000/api/glycemia/${widget.patientId}');
+      final Uri uri = Uri.parse('http://192.168.1.3:8000/api/glycemia/${widget.patientId}');
       final http.Response response = await http.get(uri);
       print('Fetch glycemia data - Response status code: ${response.statusCode}');
       

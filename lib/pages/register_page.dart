@@ -35,7 +35,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Future<void> fetchDoctorList() async {
     try {
-      final response = await http.get(Uri.parse('http://192.168.1.9:8000/api/doctors/list'));
+      final response = await http.get(Uri.parse('http://192.168.1.3:8000/api/doctors/list'));
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = jsonDecode(response.body);
         final List<dynamic> doctorsData = responseData['doctors'];
@@ -58,7 +58,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Future<void> fetchDoctorId(String firstName, String lastName) async {
     try {
-      final Uri uri = Uri.parse('http://192.168.1.9:8000/api/doctorId')
+      final Uri uri = Uri.parse('http://192.168.1.3:8000/api/doctorId')
           .replace(queryParameters: {
         'first_name': firstName,
         'last_name': lastName,
@@ -88,7 +88,7 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
 //   void registerUser(BuildContext context) async {
-//   final Uri uri = Uri.parse('http://192.168.1.9:8000/api/patient/register');
+//   final Uri uri = Uri.parse('http://192.168.1.3:8000/api/patient/register');
 
 //   // Parse selectedDoctorId to int or set to null if it's empty or null
 //   int? doctorId = selectedDoctorId != null && selectedDoctorId!.isNotEmpty ? int.tryParse(selectedDoctorId!) : null;
@@ -195,7 +195,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
 
 void registerUser(BuildContext context) async {
-    final Uri uri = Uri.parse('http://192.168.1.9:8000/api/patient/register');
+    final Uri uri = Uri.parse('http://192.168.1.3:8000/api/patient/register');
   
     // Check if all required fields are filled
     if (fnameController.text.isEmpty ||
@@ -587,7 +587,7 @@ print('Registering user with data: $userData');
 
 //   Future<void> fetchDoctorList() async {
 //     try {
-//       final response = await http.get(Uri.parse('http://192.168.1.9:8000/api/doctors'));
+//       final response = await http.get(Uri.parse('http://192.168.1.3:8000/api/doctors'));
 //       if (response.statusCode == 200) {
 //         final Map<String, dynamic> responseData = jsonDecode(response.body);
 //         final List<dynamic> doctorsData = responseData['doctors'];
@@ -610,7 +610,7 @@ print('Registering user with data: $userData');
 
 //   Future<void> fetchDoctorId(String firstName, String lastName) async {
 //     try {
-//       final Uri uri = Uri.parse('http://192.168.1.9:8000/api/doctor/id')
+//       final Uri uri = Uri.parse('http://192.168.1.3:8000/api/doctor/id')
 //           .replace(queryParameters: {
 //         'first_name': firstName,
 //         'last_name': lastName,
@@ -640,7 +640,7 @@ print('Registering user with data: $userData');
 //   }
 
 // //   void registerUser(BuildContext context) async {
-// //   final Uri uri = Uri.parse('http://192.168.1.9:8000/api/patient/register');
+// //   final Uri uri = Uri.parse('http://192.168.1.3:8000/api/patient/register');
 
 // //   // Parse selectedDoctorId to int or set to null if it's empty or null
 // //   int? doctorId = selectedDoctorId != null && selectedDoctorId!.isNotEmpty ? int.tryParse(selectedDoctorId!) : null;
@@ -747,7 +747,7 @@ print('Registering user with data: $userData');
 
 
 // void registerUser(BuildContext context) async {
-//   final Uri uri = Uri.parse('http://192.168.1.9:8000/api/patient/register');
+//   final Uri uri = Uri.parse('http://192.168.1.3:8000/api/patient/register');
 
 //   // Check if all required fields are filled
 //   if (fnameController.text.isEmpty ||
